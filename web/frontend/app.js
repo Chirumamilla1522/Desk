@@ -13,6 +13,24 @@ import {
   reportHref,
 } from './app/views/ledger.mjs';
 
+// Surface runtime errors in the UI instead of silently breaking interactions.
+window.addEventListener('error', (e) => {
+  try {
+    const msg = e?.error?.message || e?.message || 'Unknown error';
+    toast(`Desk error: ${msg}`);
+  } catch {
+    /* ignore */
+  }
+});
+window.addEventListener('unhandledrejection', (e) => {
+  try {
+    const msg = e?.reason?.message || String(e?.reason || 'Unknown error');
+    toast(`Desk error: ${msg}`);
+  } catch {
+    /* ignore */
+  }
+});
+
 async function loadTracker(prefetchedApplicationsPayload) {
   await ledgerLoadApplications({
     prefetchedApplicationsPayload,
@@ -223,8 +241,9 @@ function wireMainNav() {
   if (!nav || nav.dataset.navWired === '1') return;
   nav.dataset.navWired = '1';
   nav.addEventListener('click', (e) => {
-    const btn = e.target.closest('.nav-item[data-view]');
+    const btn = e.target?.closest?.('.nav-item[data-view]');
     if (!btn || !nav.contains(btn)) return;
+    if (btn.disabled) return;
     const view = btn.dataset.view;
     if (view) showView(view);
   });

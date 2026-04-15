@@ -74,6 +74,8 @@ code {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2;
   min-height: 0;
   max-height: 100%;
   overflow: hidden;
@@ -271,6 +273,8 @@ code {
   overflow-x: hidden;
   padding: 1.5rem 2rem 3rem;
   max-width: 1400px;
+  position: relative;
+  z-index: 1;
   scrollbar-gutter: stable;
 }
 
