@@ -570,9 +570,87 @@ async function loadWorkspaceHints(workspacePrefetched) {
     const w = workspacePrefetched !== undefined ? workspacePrefetched : await api('/api/workspace');
     const ih = $('#inbox-hint');
     if (ih) ih.textContent = w.counts?.pipelinePending ? `${w.counts.pipelinePending} queued` : 'pipeline';
+
+    // First-login onboarding: prompt for resume PDF if CV not present yet.
+    try {
+      const needsCv = w?.setup?.cv === false;
+      const dlg = $('#modal-onboarding');
+      if (needsCv && dlg && typeof dlg.showModal === 'function' && !dlg.open) {
+        dlg.showModal();
+      }
+    } catch {
+      /* ignore */
+    }
   } catch {
     /* ignore */
   }
+}
+
+function wireOnboardingUpload() {
+  const dlg = $('#modal-onboarding');
+  if (!dlg || dlg.dataset.wired === '1') return;
+  dlg.dataset.wired = '1';
+
+  const btnUp = $('#btn-onboarding-upload');
+  const btnSkip = $('#btn-onboarding-skip');
+  const btnClose = $('#close-onboarding');
+  const input = $('#onboarding-pdf');
+  const msg = $('#onboarding-msg');
+
+  function setMsg(t, isErr) {
+    if (!msg) return;
+    msg.hidden = false;
+    msg.textContent = t;
+    msg.classList.toggle('err', !!isErr);
+  }
+
+  function close() {
+    try {
+      dlg.close();
+    } catch {
+      /* ignore */
+    }
+  }
+
+  btnSkip?.addEventListener('click', () => close());
+  btnClose?.addEventListener('click', () => close());
+
+  btnUp?.addEventListener('click', async () => {
+    try {
+      if (!input || !input.files || !input.files[0]) {
+        setMsg('Pick a PDF file first.', true);
+        return;
+      }
+      const f = input.files[0];
+      if (!/pdf$/i.test(f.name) && f.type !== 'application/pdf') {
+        setMsg('Please upload a PDF.', true);
+        return;
+      }
+      if (btnUp) btnUp.disabled = true;
+      setMsg('Uploading…', false);
+
+      const fd = new FormData();
+      fd.append('file', f, f.name);
+      const r = await fetch('/api/cv/import-pdf', { method: 'POST', body: fd, credentials: 'same-origin' });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || r.statusText);
+
+      setMsg(`Imported. (${data.words || 0} words)`, false);
+      toast('Resume imported');
+      close();
+      // Refresh CV text in state so Manuscript view can load immediately.
+      try {
+        const cv0 = await api('/api/cv');
+        state.cvText = cv0.content || '';
+      } catch {
+        /* ignore */
+      }
+    } catch (e) {
+      setMsg(String(e.message || e), true);
+    } finally {
+      if (btnUp) btnUp.disabled = false;
+    }
+  });
 }
 
 function parseYmd(s) {
@@ -3026,6 +3104,7 @@ if (btnRunClear) {
     state.cvText = cv0.content || '';
 
     await loadCloudSession(meRes);
+    wireOnboardingUpload();
     await loadWorkspaceHints(wsRes);
     await loadTracker(appsData);
     await loadProfileFields(profileRes);

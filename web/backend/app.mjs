@@ -9,6 +9,8 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
+import Busboy from 'busboy';
+import pdfParse from 'pdf-parse';
 
 import {
   readApplications,
@@ -557,6 +559,61 @@ app.put('/api/cv', async (req, res) => {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content, 'utf8');
     res.json({ ok: true, path: p, words: content.trim() ? content.trim().split(/\s+/).length : 0, storage: 'disk' });
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
+/** Upload a resume PDF, parse to text, and store into cv.md (cloud if signed in). */
+app.post('/api/cv/import-pdf', async (req, res) => {
+  try {
+    const cu = await getSessionUser(req);
+    if (isCloudEnabled() && !cu) return res.status(401).json({ error: 'Sign in required', auth: true });
+
+    const bb = Busboy({ headers: req.headers, limits: { files: 1, fileSize: 8 * 1024 * 1024 } });
+    let buf = null;
+    let filename = '';
+    let mimetype = '';
+
+    bb.on('file', (_name, file, info) => {
+      filename = info?.filename || '';
+      mimetype = info?.mimeType || '';
+      const chunks = [];
+      file.on('data', (d) => chunks.push(d));
+      file.on('limit', () => file.unpipe());
+      file.on('end', () => {
+        buf = Buffer.concat(chunks);
+      });
+    });
+
+    bb.on('error', (e) => {
+      throw e;
+    });
+
+    bb.on('finish', async () => {
+      if (!buf || !buf.length) return res.status(400).json({ error: 'pdf file required' });
+      if (mimetype && !/pdf/i.test(mimetype) && !/\.pdf$/i.test(filename)) {
+        return res.status(400).json({ error: 'Please upload a PDF' });
+      }
+
+      const parsed = await pdfParse(buf);
+      const text = String(parsed?.text || '').trim();
+      if (!text) return res.status(400).json({ error: 'Could not extract text from PDF' });
+
+      const cleaned = text.replace(/\r\n/g, '\n').replace(/[ \t]+\n/g, '\n').trim();
+      const content = cleaned.length > 700_000 ? cleaned.slice(0, 700_000) : cleaned;
+
+      const p = cvPath();
+      if (isCloudEnabled() && cu) {
+        await upsertWorkspaceBody(sbFor(cu), cu.user.id, WS.CV, content, { mimeType: 'text/markdown' });
+        return res.json({ ok: true, words: content.split(/\s+/).filter(Boolean).length, storage: 'cloud' });
+      }
+      mkdirSync(dirname(p), { recursive: true });
+      writeFileSync(p, content, 'utf8');
+      res.json({ ok: true, words: content.split(/\s+/).filter(Boolean).length, storage: 'disk' });
+    });
+
+    req.pipe(bb);
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }

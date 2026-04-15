@@ -1144,6 +1144,31 @@
       </div>
     </dialog>
 
+    <dialog class="modal modal-wide" id="modal-onboarding">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Upload your resume</h3>
+          <button type="button" class="icon-btn" id="close-onboarding" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <p class="muted" style="margin-top: 0">
+            It looks like this is your first time here (or you don’t have a CV yet). Upload a PDF resume and we’ll extract the text into your workspace.
+          </p>
+          <div class="field-grid single">
+            <label>
+              Resume PDF
+              <input type="file" id="onboarding-pdf" accept="application/pdf,.pdf" />
+            </label>
+          </div>
+          <p class="muted small" id="onboarding-msg" hidden></p>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn ghost" id="btn-onboarding-skip">Skip for now</button>
+          <button type="button" class="btn primary" id="btn-onboarding-upload">Upload &amp; parse</button>
+        </footer>
+      </div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script>
       // Diagnostics that work even if module scripts fail to execute.
