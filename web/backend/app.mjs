@@ -84,9 +84,11 @@ import {
   WS,
 } from './lib/workspace-remote.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const PUBLIC = join(__dirname, '..', 'frontend');
 const ROOT = getCareerOpsRoot();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PUBLIC_FALLBACK = join(__dirname, '..', 'frontend');
+const PUBLIC_BUILD = join(ROOT, 'public');
+const PUBLIC = existsSync(join(PUBLIC_BUILD, 'desk.html')) ? PUBLIC_BUILD : PUBLIC_FALLBACK;
 const FOCUS_PRESETS = JSON.parse(readFileSync(join(__dirname, 'lib', 'focus-presets.json'), 'utf8'));
 
 function sbFor(sessionUser) {

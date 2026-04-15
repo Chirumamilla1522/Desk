@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/index.mjs", "use": "@vercel/node" }
-  ],
   "routes": [
     { "src": "^/welcome$", "dest": "/welcome.html" },
     { "src": "^/$", "dest": "api/index.mjs" },
