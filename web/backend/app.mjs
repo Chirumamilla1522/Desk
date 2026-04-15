@@ -571,9 +571,13 @@ app.post('/api/cv/import-pdf', async (req, res) => {
     // Lazy-load heavy/optional deps so the function doesn't crash at cold start
     // if the PDF import route is unused or a dependency fails to load.
     const busboyMod = await import('busboy');
-    const pdfParseMod = await import('pdf-parse');
     const Busboy = busboyMod.default || busboyMod;
-    const pdfParse = pdfParseMod.default || pdfParseMod;
+    // IMPORTANT: load worker helpers before loading `pdf-parse` to polyfill DOMMatrix in Node.
+    // See https://raw.githubusercontent.com/mehmet-kozan/pdf-parse/main/docs/troubleshooting.md
+    const workerMod = await import('pdf-parse/worker');
+    const pdfParseMod = await import('pdf-parse');
+    const CanvasFactory = workerMod.CanvasFactory || workerMod.default?.CanvasFactory;
+    const PDFParse = pdfParseMod.PDFParse || pdfParseMod.default?.PDFParse;
 
     const bb = Busboy({ headers: req.headers, limits: { files: 1, fileSize: 8 * 1024 * 1024 } });
     let buf = null;
@@ -601,7 +605,13 @@ app.post('/api/cv/import-pdf', async (req, res) => {
         return res.status(400).json({ error: 'Please upload a PDF' });
       }
 
-      const parsed = await pdfParse(buf);
+      if (!CanvasFactory || !PDFParse) {
+        return res.status(500).json({ error: 'PDF parser not available' });
+      }
+
+      const parser = new PDFParse({ data: buf, CanvasFactory });
+      const parsed = await parser.getText();
+      await parser.destroy().catch(() => {});
       const text = String(parsed?.text || '').trim();
       if (!text) return res.status(400).json({ error: 'Could not extract text from PDF' });
 

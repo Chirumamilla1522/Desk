@@ -28,6 +28,7 @@
   "author": "Bhargav Chirumamilla",
   "license": "MIT",
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.97",
     "@supabase/supabase-js": "^2.49.1",
     "busboy": "^1.6.0",
     "compression": "^1.8.1",
