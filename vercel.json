@@ -1,8 +1,9 @@
 {
   "version": 2,
   "routes": [
+    { "src": "/welcome", "dest": "/welcome.html" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/server.mjs" }
+    { "src": "/(.*)", "dest": "server.mjs" }
   ]
 }
 
