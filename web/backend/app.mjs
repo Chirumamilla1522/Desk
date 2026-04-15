@@ -785,7 +785,21 @@ app.get('/api/presets/focus', (_req, res) => {
  */
 app.post('/api/jobs/preview', async (req, res) => {
   try {
-    const doc = readPortalsDoc(ROOT);
+    // For cloud users, prefer their synced portals.yml from Supabase; otherwise fall back to the repo seed.
+    const cu = await getSessionUser(req);
+    let doc = null;
+    if (cu && isCloudEnabled()) {
+      const sb = sbFor(cu);
+      const raw = await getWorkspaceBody(sb, WS.PORTALS);
+      if (raw != null && String(raw).trim()) {
+        try {
+          doc = yaml.load(raw);
+        } catch {
+          doc = null;
+        }
+      }
+    }
+    if (!doc) doc = readPortalsDoc(ROOT);
     if (!doc) return res.status(404).json({ error: 'portals.yml not found' });
 
     const {
