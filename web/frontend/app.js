@@ -210,30 +210,35 @@ function toggleShortlist(j) {
 // ── Navigation ──────────────────────────────────────────────────────
 
 function showView(name) {
-  $$('.view').forEach((v) => {
-    v.hidden = v.id !== `view-${name}`;
-  });
-  $$('#main-nav .nav-item').forEach((b) => {
-    b.classList.toggle('active', b.dataset.view === name);
-  });
-  if (name === 'cv') loadCvView();
-  if (name === 'match') loadMatchView();
-  if (name === 'inbox') loadInboxView();
-  if (name === 'jobs') {
-    prefetchCvForOverlap();
-    loadDiscoverProfilePanel();
+  try {
+    $$('.view').forEach((v) => {
+      v.hidden = v.id !== `view-${name}`;
+    });
+    $$('#main-nav .nav-item').forEach((b) => {
+      b.classList.toggle('active', b.dataset.view === name);
+    });
+    if (name === 'cv') loadCvView();
+    if (name === 'match') loadMatchView();
+    if (name === 'inbox') loadInboxView();
+    if (name === 'jobs') {
+      prefetchCvForOverlap();
+      loadDiscoverProfilePanel();
+    }
+    if (name === 'run') loadRunbookView();
+    if (name === 'interview') loadInterviewView();
+    if (name === 'apply') void loadApplyView();
+    if (name === 'outreach') void loadOutreachView();
+    if (name === 'followup') void loadFollowupView();
+    if (name === 'patterns') void loadPatternsView();
+    if (name === 'pdf') void loadPdfView();
+    if (name === 'pipeline') void loadPipelineProcessorView();
+    if (name === 'deep') void loadDeepView();
+    if (name === 'training') void loadTrainingView();
+    if (name === 'project') void loadProjectView();
+  } catch (e) {
+    console.error('showView failed:', e);
+    toast(`View failed: ${String(e?.message || e)}`);
   }
-  if (name === 'run') loadRunbookView();
-  if (name === 'interview') loadInterviewView();
-  if (name === 'apply') void loadApplyView();
-  if (name === 'outreach') void loadOutreachView();
-  if (name === 'followup') void loadFollowupView();
-  if (name === 'patterns') void loadPatternsView();
-  if (name === 'pdf') void loadPdfView();
-  if (name === 'pipeline') void loadPipelineProcessorView();
-  if (name === 'deep') void loadDeepView();
-  if (name === 'training') void loadTrainingView();
-  if (name === 'project') void loadProjectView();
 }
 
 function wireMainNav() {
