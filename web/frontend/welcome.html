@@ -55,8 +55,12 @@
         const aUp = document.getElementById('btn-signup');
 
         function safeNextHref(raw) {
-          if (!raw || !raw.startsWith('/')) return '/';
-          if (raw.startsWith('//')) return '/';
+          // Default to Desk (landing `/` stays welcome).
+          if (!raw || !raw.startsWith('/')) return '/desk';
+          if (raw.startsWith('//')) return '/desk';
+          if (raw === '/') return '/desk';
+          // Avoid redirect loops into auth pages.
+          if (raw.startsWith('/auth') || raw.startsWith('/signup')) return '/desk';
           return raw;
         }
 
@@ -64,7 +68,7 @@
         if (aIn) aIn.href = `/auth.html?next=${encodeURIComponent(safeNext)}`;
         if (aUp) aUp.href = `/signup?next=${encodeURIComponent(safeNext)}`;
 
-        if (msg && safeNext !== '/') {
+        if (msg && safeNext !== '/desk') {
           msg.hidden = false;
           msg.textContent = 'After you sign in, we’ll send you back to where you were.';
         }
