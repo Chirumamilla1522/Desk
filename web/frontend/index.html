@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Career-Ops — Workspace</title>
+    <script>
+      (function () {
+        var p = location.protocol;
+        if (p !== 'http:' && p !== 'https:') return;
+        var o = location.origin;
+        var l = document.createElement('link');
+        l.rel = 'dns-prefetch';
+        l.href = o;
+        document.head.appendChild(l);
+        var c = document.createElement('link');
+        c.rel = 'preconnect';
+        c.href = o;
+        document.head.appendChild(c);
+      })();
+    </script>
+    <link rel="modulepreload" href="/app/index.mjs" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=2026-04-14-auth-desk-ui" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">◇</div>
+            <div>
+              <h1 class="brand-title">Desk</h1>
+              <p class="tagline">search · one place</p>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-scroll">
+          <nav class="nav" id="main-nav">
+            <button type="button" class="nav-item active" data-view="tracker"><span class="nav-slug">Ledger</span><span class="nav-hint">applications</span></button>
+            <button type="button" class="nav-item" data-view="inbox"><span class="nav-slug">Inbox</span><span class="nav-hint" id="inbox-hint">pipeline</span></button>
+            <button type="button" class="nav-item" data-view="jobs"><span class="nav-slug">Discover</span><span class="nav-hint">ATS pull</span></button>
+            <button type="button" class="nav-item" data-view="cv"><span class="nav-slug">Manuscript</span><span class="nav-hint">CV + composer</span></button>
+            <button type="button" class="nav-item" data-view="match"><span class="nav-slug">Signals</span><span class="nav-hint">filters</span></button>
+            <button type="button" class="nav-item" data-view="interview"><span class="nav-slug">Interview</span><span class="nav-hint">STAR · role prep</span></button>
+            <button type="button" class="nav-item" data-view="apply"><span class="nav-slug">Apply</span><span class="nav-hint">forms + context</span></button>
+            <button type="button" class="nav-item" data-view="outreach"><span class="nav-slug">Outreach</span><span class="nav-hint">LinkedIn</span></button>
+            <button type="button" class="nav-item" data-view="followup"><span class="nav-slug">Follow-up</span><span class="nav-hint">cadence</span></button>
+            <button type="button" class="nav-item" data-view="patterns"><span class="nav-slug">Patterns</span><span class="nav-hint">insights</span></button>
+            <button type="button" class="nav-item" data-view="pdf"><span class="nav-slug">PDF</span><span class="nav-hint">generate</span></button>
+            <button type="button" class="nav-item" data-view="pipeline"><span class="nav-slug">Pipeline</span><span class="nav-hint">process inbox</span></button>
+            <button type="button" class="nav-item" data-view="deep"><span class="nav-slug">Deep</span><span class="nav-hint">research</span></button>
+            <button type="button" class="nav-item" data-view="training"><span class="nav-slug">Training</span><span class="nav-hint">assess</span></button>
+            <button type="button" class="nav-item" data-view="project"><span class="nav-slug">Project</span><span class="nav-hint">idea eval</span></button>
+            <button type="button" class="nav-item" data-view="run"><span class="nav-slug">Runbook</span><span class="nav-hint">local scripts</span></button>
+          </nav>
+          <button type="button" class="btn ghost focus-entry-btn" id="btn-focus-open">Focus session</button>
+          <div class="sidebar-note">
+            <p class="sidebar-note-title">Saved for later</p>
+            <p class="sidebar-note-body"><span id="shortlist-count">0</span> listings in this browser</p>
+            <button type="button" class="btn quiet sidebar-export" id="btn-shortlist-csv">Export CSV</button>
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <p class="hint workspace-hint"><span class="local-badge">Local</span> Data stays on this device — nothing is uploaded by this UI.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <!-- setup-ribbon removed (was showing empty header) -->
+        <!-- CV -->
+        <section class="view" id="view-cv" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Manuscript</h2>
+            <p class="sub">
+              The composer keeps your structured CV and publishes a clean markdown CV for the rest of your workflow. Switch to Markdown when you want to edit the text directly.
+            </p>
+          </header>
+
+          <div class="cv-mode-toggle" role="tablist">
+            <button type="button" class="cv-tab active" data-cv-tab="composer" role="tab">Composer</button>
+            <button type="button" class="cv-tab" data-cv-tab="markdown" role="tab">Markdown</button>
+          </div>
+
+          <div class="card cv-composer-card" id="cv-composer-panel">
+            <p class="card-desc composer-lead">
+              Fill what you can — add roles and schools with the buttons below. Saving updates the composer and publishes your CV markdown.
+            </p>
+            <div id="cv-composer-mount"></div>
+            <div class="composer-actions">
+              <button type="button" class="btn primary" id="btn-manuscript-save">Save composer &amp; publish CV</button>
+              <span class="meta" id="manuscript-meta">—</span>
+            </div>
+          </div>
+
+          <div class="card cv-markdown-card" id="cv-markdown-panel" hidden>
+            <div class="card-actions">
+              <label class="btn ghost file-btn">
+                Upload markdown or text
+                <input type="file" id="cv-file" accept=".md,.txt,text/markdown,text/plain" hidden />
+              </label>
+              <span class="meta" id="cv-meta">—</span>
+              <button type="button" class="btn primary" id="btn-cv-save">Save markdown only</button>
+            </div>
+            <textarea id="cv-body" class="cv-textarea" placeholder="# Your Name&#10;&#10;## Summary&#10;…" spellcheck="true"></textarea>
+          </div>
+        </section>
+
+        <!-- Match setup -->
+        <section class="view" id="view-match" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Signals</h2>
+            <p class="sub">
+              Who you are on paper, which titles get through, and where in the world — saved with your profile and match settings.
+            </p>
+          </header>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3 class="card-title">Profile snapshot</h3>
+              <p class="card-desc">
+                Target roles and companies are saved with your profile for evaluations and your own prioritization. Company scan toggles are in the card below.
+              </p>
+              <div class="field-grid single">
+                <label>Full name <input type="text" id="pf-name" /></label>
+                <label>Email <input type="email" id="pf-email" /></label>
+                <label>Headline (one line) <input type="text" id="pf-headline" /></label>
+                <label>Primary target roles (one per line) <textarea id="pf-roles" rows="4" spellcheck="true"></textarea></label>
+                <label
+                  >Target companies (one per line)
+                  <textarea
+                    id="pf-companies"
+                    rows="4"
+                    spellcheck="true"
+                    placeholder="e.g. Anthropic, Stripe — dream employers or must-watch list"
+                  ></textarea>
+                </label>
+                <button type="button" class="btn primary" id="btn-profile-save">Save profile</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="card-title">Location scope</h3>
+              <p class="card-desc">Controls how strictly the job scanner filters by geography (same behavior as the command-line scanner).</p>
+              <div class="choice-row" id="loc-choices">
+                <label class="choice"
+                  ><input type="radio" name="locmode" value="us" /> <span class="choice-title">US-focused</span><span class="choice-sub">Uses the US / remote-US heuristics in the scanner</span></label
+                >
+                <label class="choice"
+                  ><input type="radio" name="locmode" value="none" /> <span class="choice-title">Worldwide</span><span class="choice-sub">Turn off that filter — more noise, more geography</span></label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">Role keywords</h3>
+            <p class="card-desc">Positive = at least one must appear in the job title. Negative = exclude if present.</p>
+            <div class="focus-chips" id="focus-tracks"></div>
+            <div class="tag-box">
+              <label><span class="label-title">Must appear in title</span> · any one is enough</label>
+              <div class="tags" id="tags-positive"></div>
+              <input type="text" class="tag-input" id="input-positive" placeholder="Type a keyword and press Enter" />
+            </div>
+            <div class="tag-box">
+              <label
+                ><span class="label-title">Exclude from title</span>
+                <button type="button" class="linkish" id="btn-exclude-entry">add junior / intern guardrails</button></label
+              >
+              <div class="tags" id="tags-negative"></div>
+              <input type="text" class="tag-input" id="input-negative" placeholder="Exclude keyword, Enter" />
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">Companies to scan</h3>
+            <p class="card-desc">
+              Toggle which tracked career portals participate in API scans. (<span id="company-api-count"></span> with
+              detectable Greenhouse / Ashby / Lever APIs.)
+            </p>
+            <div class="toolbar inner">
+              <input type="search" id="company-q" class="search-wide" placeholder="Filter companies…" />
+              <button type="button" class="btn ghost" id="btn-company-enable-visible">Enable visible</button>
+              <button type="button" class="btn ghost" id="btn-company-disable-visible">Disable visible</button>
+            </div>
+            <div class="company-scroller" id="company-list"></div>
+          </div>
+
+          <div class="card-actions foot-save">
+            <button type="button" class="btn primary" id="btn-portals-save">Save match rules</button>
+          </div>
+        </section>
+
+        <!-- Jobs -->
+        <section class="view" id="view-jobs" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Discover</h2>
+            <p class="sub">Pulls the same company career feeds as the scanner in your toolkit. “Overlap” is a naive word match against your manuscript — a compass, not a verdict.</p>
+          </header>
+          <div class="card discover-profile-card">
+            <div class="discover-from-profile" id="discover-from-profile">
+              <div class="discover-from-profile-top">
+                <h3 class="discover-from-profile-title">Targets from your profile</h3>
+                <p class="muted small discover-headline-hint" id="discover-headline-hint" hidden></p>
+                <div class="discover-from-profile-toolbar">
+                  <label class="discover-focus-label"
+                    >Company for this search
+                    <select id="discover-profile-company-select" class="discover-profile-select" aria-label="Pick a target company"></select
+                  ></label>
+                  <button type="button" class="btn quiet" id="btn-discover-apply-company">Apply to company filter</button>
+                  <button type="button" class="btn ghost" id="btn-discover-refresh-profile">Refresh</button>
+                </div>
+              </div>
+              <div class="discover-hint-body" id="discover-hint-body" hidden>
+                <div class="discover-hint-split">
+                  <div>
+                    <p class="label-title">Target roles</p>
+                    <ul class="discover-hint-list" id="discover-role-hints"></ul>
+                    <p class="label-title discover-archetype-title" id="discover-archetype-title" hidden>Archetype angles</p>
+                    <ul class="discover-hint-list discover-hint-sub" id="discover-archetype-hints" hidden></ul>
+                  </div>
+                  <div>
+                    <p class="label-title">Target companies</p>
+                    <ul class="discover-hint-list" id="discover-company-hints"></ul>
+                  </div>
+                </div>
+                <button type="button" class="btn quiet discover-copy-roles" id="btn-discover-copy-roles" hidden>Copy roles to clipboard</button>
+              </div>
+              <p class="muted small discover-profile-miss" id="discover-profile-miss">
+                Add target roles and companies in Profile snapshot (Signals), then refresh here.
+              </p>
+            </div>
+            <div class="job-controls">
+              <label>Posted <select id="job-recency">
+                  <option value="">Any time</option>
+                  <option value="day">Last 24 hours</option>
+                  <option value="week">Last 7 days</option>
+                  <option value="month">Last 30 days</option>
+                </select></label
+              >
+              <label class="check"
+                ><input type="checkbox" id="job-dedup" /> Hide roles already in your inbox or scan history</label
+              >
+              <label class="check"
+                ><input type="checkbox" id="job-allloc" /> Ignore US location filter (show global matches)</label
+              >
+              <label>Company contains <input type="text" id="job-company" placeholder="Optional filter" /></label>
+              <label>Max rows <input type="number" id="job-max" value="400" min="50" max="4000" /></label>
+              <button type="button" class="btn primary" id="btn-jobs-fetch">Fetch jobs</button>
+            </div>
+            <p class="job-stats muted" id="job-stats"></p>
+            <div class="table-wrap">
+              <table class="apps-table">
+                <thead>
+                  <tr>
+                    <th>Posted</th>
+                    <th title="Click the number for token detail">Overlap</th>
+                    <th>Company</th>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th class="th-actions"> </th>
+                  </tr>
+                </thead>
+                <tbody id="jobs-body"></tbody>
+              </table>
+              <p class="empty" id="jobs-empty" hidden>Nothing loaded yet. Tune Signals, then fetch — or widen the date window.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Inbox = pipeline pendientes -->
+        <section class="view" id="view-inbox" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Inbox</h2>
+            <p class="sub">Unread listings queued for evaluation — the same queue your pipeline command processes outside this app.</p>
+          </header>
+          <div class="card inbox-card">
+            <div class="inbox-toolbar-row">
+              <input type="search" class="inbox-search" id="inbox-search" placeholder="Filter company, title, URL, location…" autocomplete="off" />
+              <label class="inbox-sort-label"
+                >Sort
+                <select id="inbox-sort">
+                  <option value="listed-desc">Listed date · newest</option>
+                  <option value="listed-asc">Listed date · oldest</option>
+                  <option value="firstseen-desc">First seen · newest</option>
+                  <option value="firstseen-asc">First seen · oldest</option>
+                  <option value="company-asc">Company A→Z</option>
+                  <option value="company-desc">Company Z→A</option>
+                  <option value="title-asc">Title A→Z</option>
+                  <option value="title-desc">Title Z→A</option>
+                  <option value="portal-asc">Source A→Z</option>
+                </select></label
+              >
+              <button type="button" class="btn quiet" id="btn-inbox-refresh">Refresh</button>
+            </div>
+            <div class="inbox-toolbar-row inbox-toolbar-row-sub">
+              <label class="inbox-sort-label"
+                >Source
+                <select id="inbox-portal">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label class="check muted small"><input type="checkbox" id="inbox-only-posted" /> Only with posted date</label>
+              <label class="check muted small"><input type="checkbox" id="inbox-only-location" /> Only with location</label>
+            </div>
+            <p class="inbox-hint muted" id="inbox-filter-count"></p>
+            <div class="table-wrap inbox-table-wrap">
+              <table class="apps-table inbox-table">
+                <thead>
+                  <tr>
+                    <th>Listed</th>
+                    <th>First seen</th>
+                    <th>Company</th>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Source</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="inbox-tbody"></tbody>
+              </table>
+              <p class="empty inbox-empty" id="inbox-empty" hidden>The queue is empty. Run a scan or queue a role from Discover.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Interview prep -->
+        <section class="view" id="view-interview" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Interview prep</h2>
+            <p class="sub">
+              <strong>STAR story bank</strong> — a small set of deep behavioral stories (Situation, Task, Action, Result, plus Reflection) that you reuse and adapt for “Tell me about a time…” instead of memorizing dozens of one-off answers. Offer evaluations often suggest new stories; you merge and polish them here.
+            </p>
+            <p class="sub interview-sub-second">
+              <strong>Company prep</strong> — one notebook per employer or loop: what they need, why you fit, questions you will ask them, and notes after each round. Live practice below can combine that notebook with your STAR bank when you pick a ledger row.
+            </p>
+          </header>
+          <div class="card interview-card">
+            <p class="interview-error" id="interview-load-error" role="alert" hidden></p>
+            <div class="interview-seg" role="tablist" aria-label="STAR story bank or company prep">
+              <button type="button" class="interview-seg-btn active" data-int-tab="story" role="tab" aria-selected="true">
+                STAR story bank
+              </button>
+              <button type="button" class="interview-seg-btn" data-int-tab="prep" role="tab" aria-selected="false">
+                Company prep
+              </button>
+            </div>
+            <section class="live-practice-card" id="live-practice-card" aria-label="Live interview practice">
+              <div class="live-practice-head">
+                <div class="live-practice-head-text">
+                  <h3 class="live-practice-title">Live interview practice</h3>
+                  <p class="live-practice-lead muted">
+                    Split screen like a real loop: <strong>their line</strong> on the left — behavioral prompts plus text from your <strong>STAR story bank</strong>; when you start with a ledger row, it also uses <strong>questions from that role’s company prep</strong>. <strong>Your side</strong> is a rough spoken transcript — timed rounds so you do not ramble.
+                  </p>
+                </div>
+                <button type="button" class="btn ghost btn-live-modal" id="btn-live-open-modal">Full-screen</button>
+              </div>
+              <div class="live-practice-setup" id="live-practice-setup">
+                <div class="live-practice-setup-row">
+                  <label class="live-field"
+                    >Ledger row (company prep + STAR bank)
+                    <select id="live-app-pick" class="interview-select interview-select-wide" aria-label="Application row"></select>
+                  </label>
+                  <button type="button" class="btn primary" id="btn-live-start-ledger">Start with role</button>
+                </div>
+                <div class="live-practice-setup-or"><span>or</span></div>
+                <div class="live-practice-setup-row">
+                  <p class="live-story-only-copy muted">
+                    Behavioral practice using only your STAR story bank — no company notebook until you start with a role above.
+                  </p>
+                  <button type="button" class="btn ghost" id="btn-live-start-story">STAR bank only</button>
+                </div>
+              </div>
+              <div class="live-practice-session" id="live-practice-session" hidden>
+                <div class="live-practice-toolbar">
+                  <span class="live-practice-pulse" aria-hidden="true"></span>
+                  <span class="live-practice-badge">Session</span>
+                  <span class="live-practice-context" id="live-practice-context"></span>
+                  <span class="live-practice-round mono" id="live-practice-round">1:30</span>
+                  <div class="live-practice-toolbar-actions">
+                    <button type="button" class="btn quiet" id="btn-live-next-q">Next question</button>
+                    <button type="button" class="btn quiet" id="btn-live-shuffle-story">Story drill</button>
+                    <button type="button" class="btn ghost" id="btn-live-reset-timer">Reset timer</button>
+                    <button type="button" class="btn ghost" id="btn-live-end">End</button>
+                  </div>
+                </div>
+                <div class="live-practice-split">
+                  <div class="live-practice-col live-practice-col-them">
+                    <span class="live-practice-col-label">Interviewer</span>
+                    <div class="live-practice-bubble" id="live-practice-question" role="text"></div>
+                  </div>
+                  <div class="live-practice-col live-practice-col-you">
+                    <span class="live-practice-col-label">You — say it aloud; type a rough transcript</span>
+                    <textarea
+                      id="live-practice-answer"
+                      class="live-practice-answer"
+                      rows="10"
+                      spellcheck="true"
+                      placeholder="Fragments and bullets are fine. If it reads like an essay, shorten until you could say it in under two minutes."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <p class="interview-welcome" id="interview-welcome"></p>
+            <div class="interview-story-ribbon" id="interview-story-ribbon" hidden>
+              <div class="story-bank-head">
+                <span class="story-bank-badge">STAR + Reflection</span>
+                <p class="story-bank-lead">
+                  Build a <strong>master library</strong> of a few strong stories, not a hundred shallow ones. Each story should cover S, T, A, R, and what you learned (<strong>Reflection</strong>) so you can bend it to different behavioral questions. Offer evaluations often add starter stories — fold them in here and rewrite until it sounds like you talking, not reading.
+                </p>
+                <p class="story-bank-stats" id="interview-story-stats" aria-live="polite">—</p>
+              </div>
+              <div class="story-star-grid" aria-hidden="true">
+                <div class="story-star-card story-star-s">
+                  <span class="story-star-letter">S</span>
+                  <strong>Situation</strong>
+                  <p>Context: team, product stage, constraint.</p>
+                </div>
+                <div class="story-star-card story-star-t">
+                  <span class="story-star-letter">T</span>
+                  <strong>Task</strong>
+                  <p>What you owned; success looked like…</p>
+                </div>
+                <div class="story-star-card story-star-a">
+                  <span class="story-star-letter">A</span>
+                  <strong>Action</strong>
+                  <p>Concrete steps, trade-offs, tools.</p>
+                </div>
+                <div class="story-star-card story-star-r">
+                  <span class="story-star-letter">R</span>
+                  <strong>Result</strong>
+                  <p>Outcome with numbers if you have them.</p>
+                </div>
+                <div class="story-star-card story-star-plus">
+                  <span class="story-star-letter">+R</span>
+                  <strong>Reflection</strong>
+                  <p>What you’d do again; what scaled.</p>
+                </div>
+              </div>
+            </div>
+            <div class="interview-toolbar">
+              <div id="interview-prep-row" class="interview-prep-row" hidden>
+                <label class="interview-file-label"
+                  >Company notebook
+                  <select id="interview-prep-select" class="interview-select" aria-label="Company notebook"></select>
+                </label>
+              </div>
+              <span class="meta interview-meta-span" id="interview-meta">—</span>
+              <div class="interview-toolbar-actions">
+                <button type="button" class="btn primary" id="btn-interview-save">Save</button>
+                <button type="button" class="btn ghost" id="btn-interview-new">New company notebook</button>
+              </div>
+            </div>
+            <div id="interview-prep-empty" class="interview-empty" hidden>
+              <p class="interview-empty-copy">
+                No company notebooks yet. Add one per loop — what they are solving, your fit, questions you will ask, and session notes.
+              </p>
+              <button type="button" class="btn primary" id="btn-interview-new-empty">Create notebook</button>
+            </div>
+            <textarea
+              id="interview-body"
+              class="cv-textarea interview-textarea"
+              spellcheck="true"
+              placeholder="Use the tab above — STAR bank for behavioral stories, company prep for this role."
+            ></textarea>
+          </div>
+        </section>
+
+        <!-- Apply (form assistant context) -->
+        <section class="view" id="view-apply" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Apply</h2>
+            <p class="sub">
+              Load the evaluation report, reuse block <strong>H</strong> drafts when present, and bundle context for an AI assistant while you paste answers yourself. The Desk never submits applications.
+            </p>
+            <p class="sub apply-sub-second">
+              Link a report on the ledger row for CV match (B), personalization (E), interview angles (F), posting notes (G), and optional draft form answers (H). Paste visible form questions below, then copy the bundle.
+            </p>
+          </header>
+          <div class="card apply-card">
+            <p class="apply-error" id="apply-load-error" role="alert" hidden></p>
+            <div class="apply-toolbar">
+              <label class="apply-pick-label"
+                >Ledger row
+                <select id="apply-app-pick" class="interview-select interview-select-wide" aria-label="Ledger row for apply context"></select>
+              </label>
+              <button type="button" class="btn primary" id="btn-apply-load">Load context</button>
+              <button type="button" class="btn ghost apply-link-btn apply-link-inactive" id="btn-apply-open-posting" title="Open job posting">Open posting</button>
+              <button type="button" class="btn ghost apply-link-btn apply-link-inactive" id="btn-apply-open-report" title="Open evaluation report">Open report</button>
+            </div>
+            <p class="muted small apply-hint" id="apply-pack-hint" hidden></p>
+            <div class="apply-summary" id="apply-summary" hidden>
+              <p class="apply-summary-line" id="apply-summary-line"></p>
+              <dl class="apply-dl" id="apply-dl"></dl>
+            </div>
+            <div class="apply-sections" id="apply-sections" hidden>
+              <p class="label-title apply-sections-title">From the report</p>
+              <div id="apply-sections-mount"></div>
+            </div>
+            <label class="apply-label"
+              >Form questions <span class="muted small">(paste from the ATS page)</span>
+              <textarea
+                id="apply-questions"
+                class="cv-textarea apply-textarea"
+                rows="6"
+                placeholder="Paste each question on its own line (or as the site shows them). Your AI assistant maps these to your CV and the report."
+              ></textarea>
+            </label>
+            <div class="apply-actions">
+              <button type="button" class="btn primary" id="btn-apply-copy-ai">Copy bundle for AI</button>
+              <button type="button" class="btn ghost" id="btn-apply-mark-applied">Mark Applied…</button>
+            </div>
+
+            <hr class="apply-hr" />
+
+            <div class="apply-extras">
+              <div class="apply-extra">
+                <p class="label-title">Job boards</p>
+                <p class="muted small">
+                  Quick jump links for applying on common boards. Opens a new tab; the Desk never submits applications.
+                </p>
+                <div class="apply-extra-actions">
+                  <button type="button" class="btn ghost" id="btn-apply-open-linkedin">Open LinkedIn jobs</button>
+                  <button type="button" class="btn ghost" id="btn-apply-open-indeed">Open Indeed</button>
+                  <button type="button" class="btn ghost" id="btn-apply-open-wellfound">Open Wellfound</button>
+                </div>
+              </div>
+
+              <div class="apply-extra">
+                <p class="label-title">LinkedIn Easy Apply (experimental)</p>
+                <p class="muted small">
+                  Use this when the posting URL is a LinkedIn job. You still review every answer and click Submit yourself.
+                </p>
+                <label class="apply-label"
+                  >LinkedIn job URL (optional)
+                  <input
+                    type="text"
+                    id="apply-linkedin-url"
+                    class="apply-input"
+                    placeholder="https://www.linkedin.com/jobs/view/…"
+                    inputmode="url"
+                    autocomplete="off"
+                  />
+                </label>
+                <div class="apply-extra-actions">
+                  <button type="button" class="btn ghost" id="btn-apply-open-linkedin-easy">Open Easy Apply</button>
+                  <button type="button" class="btn ghost" id="btn-apply-copy-easy-bundle">Copy Easy Apply bundle</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Outreach (LinkedIn) -->
+        <section class="view" id="view-outreach" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Outreach</h2>
+            <p class="sub">
+              Pick a target type, keep it to 3 sentences (≤300 chars for connection requests), and use the report + your profile for specificity. Desk never sends messages.
+            </p>
+          </header>
+          <div class="card outreach-card">
+            <p class="outreach-error" id="outreach-load-error" role="alert" hidden></p>
+            <div class="outreach-toolbar">
+              <label class="outreach-pick-label"
+                >Ledger row
+                <select id="outreach-app-pick" class="interview-select interview-select-wide" aria-label="Ledger row for outreach"></select>
+              </label>
+              <label class="outreach-pick-label"
+                >Contact type
+                <select id="outreach-type" class="interview-select" aria-label="Contact type">
+                  <option value="recruiter">Recruiter</option>
+                  <option value="hiring_manager">Hiring manager</option>
+                  <option value="peer">Peer</option>
+                  <option value="interviewer">Interviewer</option>
+                </select>
+              </label>
+              <button type="button" class="btn primary" id="btn-outreach-load">Load context</button>
+              <button type="button" class="btn ghost outreach-link-btn outreach-link-inactive" id="btn-outreach-open-posting" title="Open job posting">Open posting</button>
+              <button type="button" class="btn ghost outreach-link-btn outreach-link-inactive" id="btn-outreach-open-report" title="Open report">Open report</button>
+            </div>
+
+            <div class="outreach-fields">
+              <label class="outreach-field">Target name (optional) <input type="text" id="outreach-target-name" placeholder="e.g. Alex Chen" /></label>
+              <label class="outreach-field">Target title (optional) <input type="text" id="outreach-target-title" placeholder="e.g. Senior Recruiter, AI" /></label>
+              <label class="outreach-field span-2">Target LinkedIn URL (optional) <input type="text" id="outreach-target-url" placeholder="https://linkedin.com/in/…" /></label>
+            </div>
+
+            <p class="muted small outreach-hint" id="outreach-pack-hint" hidden></p>
+
+            <label class="outreach-label"
+              >Draft message (editable) <span class="muted small">aim ≤300 chars</span>
+              <textarea id="outreach-draft" class="cv-textarea outreach-textarea" rows="4" placeholder="Load context to generate a first draft."></textarea>
+            </label>
+
+            <div class="outreach-actions">
+              <button type="button" class="btn primary" id="btn-outreach-copy-message">Copy message</button>
+              <button type="button" class="btn ghost" id="btn-outreach-copy-ai">Copy bundle for AI</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Follow-up cadence -->
+        <section class="view" id="view-followup" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Follow-up cadence</h2>
+            <p class="sub">Shows a follow-up cadence dashboard based on your ledger. This view does not send messages or log follow-ups automatically.</p>
+          </header>
+          <div class="card followup-card">
+            <div class="followup-toolbar">
+              <button type="button" class="btn primary" id="btn-followup-run">Run cadence</button>
+              <label class="check muted small"><input type="checkbox" id="followup-overdue-only" /> Overdue only</label>
+            </div>
+            <p class="followup-error" id="followup-error" role="alert" hidden></p>
+            <div class="followup-mount" id="followup-mount" aria-live="polite">
+              <p class="muted">Press “Run cadence”.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Patterns -->
+        <section class="view" id="view-patterns" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Patterns</h2>
+            <p class="sub">Analyzes your ledger history and renders key insights as cards. No files are written automatically.</p>
+          </header>
+          <div class="card patterns-card">
+            <div class="patterns-toolbar">
+              <button type="button" class="btn primary" id="btn-patterns-run">Run analysis</button>
+              <label class="patterns-field muted small"
+                >Min progressed apps
+                <input type="number" id="patterns-min-threshold" min="0" max="999" placeholder="5" />
+              </label>
+              <button type="button" class="btn ghost" id="btn-patterns-copy" disabled>Copy summary</button>
+            </div>
+            <p class="patterns-error" id="patterns-error" role="alert" hidden></p>
+            <div class="patterns-mount" id="patterns-mount"></div>
+          </div>
+        </section>
+
+        <!-- PDF -->
+        <section class="view" id="view-pdf" hidden>
+          <header class="view-head">
+            <h2 class="view-title">PDF</h2>
+            <p class="sub">
+              <strong>Ledger:</strong> resume PDFs usually already exist from evaluation — regenerate from HTML here if needed.
+              <strong>Inbox:</strong> pick a queued role and build a printable JD reference PDF (paste the posting text; the queue stores URL + title only).
+            </p>
+          </header>
+
+          <div class="card pdf-card pdf-context-card">
+            <h3 class="pdf-block-title">Ledger — evaluated application</h3>
+            <p class="muted small pdf-block-hint">
+              Shows company, role, and <code>cv.md</code> context. If you already ran an evaluation for this row, tailored resume HTML/PDF was generated then — use <strong>Resume / CV — HTML → PDF</strong> below to produce the PDF again from disk paths.
+            </p>
+            <div class="pdf-ledger-row">
+              <label class="pdf-field pdf-field-grow"
+                >Application
+                <select id="pdf-app-pick">
+                  <option value="">— Optional: pick a ledger row —</option>
+                </select>
+              </label>
+            </div>
+            <div class="pdf-context-panel" id="pdf-context-panel" aria-live="polite">
+              <p class="muted">Pick a row above, or leave blank for generic paths.</p>
+            </div>
+          </div>
+
+          <div class="card pdf-card">
+            <h3 class="pdf-block-title">Resume / CV — HTML → PDF</h3>
+            <p class="muted small pdf-block-hint">
+              Use for <strong>ledger / evaluated</strong> roles: your tailored HTML from the evaluation flow (often <code>output/cv.html</code>). For roles still only in the inbox queue, use the JD block below first if you need a posting PDF.
+            </p>
+            <div class="pdf-grid">
+              <label class="pdf-field">Input HTML <input type="text" id="pdf-input-html" value="output/cv.html" /></label>
+              <label class="pdf-field">Output PDF <input type="text" id="pdf-output-pdf" value="output/cv.pdf" /></label>
+              <label class="pdf-field"
+                >Paper size
+                <select id="pdf-format">
+                  <option value="a4" selected>A4</option>
+                  <option value="letter">US Letter</option>
+                </select>
+              </label>
+            </div>
+            <div class="pdf-actions">
+              <button type="button" class="btn quiet" id="btn-pdf-use-standard-paths">Use standard output paths</button>
+              <button type="button" class="btn primary" id="btn-pdf-run">Generate PDF</button>
+              <button type="button" class="btn ghost" id="btn-pdf-open" disabled>Open PDF</button>
+            </div>
+            <pre class="pdf-output" id="pdf-output" aria-live="polite">Pick an HTML input and press “Generate PDF”.</pre>
+          </div>
+
+          <div class="card pdf-card pdf-external-card">
+            <h3 class="pdf-block-title">Job description → reference PDF</h3>
+            <p class="muted small pdf-block-hint">
+              For roles <strong>still in the inbox</strong> (pipeline queue) — or anything not in the ledger yet. Inbox lines only store URL + title; open the posting and paste the JD text. Saves markdown under <code>jds/</code> and writes <code>output/jd-external-latest.pdf</code>.
+            </p>
+            <div class="pdf-inbox-row">
+              <label class="pdf-field pdf-field-grow"
+                >Load from inbox (pipeline queue)
+                <select id="pdf-inbox-pick">
+                  <option value="">— Pick a queued role to pre-fill —</option>
+                </select>
+              </label>
+              <button type="button" class="btn quiet" id="btn-pdf-inbox-open" disabled>Open posting</button>
+            </div>
+            <div class="pdf-grid pdf-grid-duo">
+              <label class="pdf-field">Company <input type="text" id="pdf-ext-company" placeholder="Optional" autocomplete="organization" /></label>
+              <label class="pdf-field">Role title <input type="text" id="pdf-ext-role" placeholder="e.g. Senior Backend Engineer" autocomplete="off" /></label>
+            </div>
+            <label class="pdf-field comp-full"
+              >Posting URL (optional)
+              <input type="url" id="pdf-ext-url" placeholder="https://…" autocomplete="off" />
+            </label>
+            <label class="pdf-field comp-full"
+              >Job description — paste full text
+              <textarea id="pdf-ext-body" rows="10" placeholder="Paste the JD here…"></textarea>
+            </label>
+            <div class="pdf-actions">
+              <button type="button" class="btn primary" id="btn-pdf-ext-build">Save JD + build reference PDF</button>
+              <button type="button" class="btn ghost" id="btn-pdf-ext-open" disabled>Open JD PDF</button>
+            </div>
+            <p class="pdf-ext-path muted small" id="pdf-ext-path" hidden></p>
+            <pre class="pdf-output" id="pdf-ext-output" aria-live="polite"></pre>
+          </div>
+        </section>
+
+        <!-- Pipeline processor -->
+        <section class="view" id="view-pipeline" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Pipeline</h2>
+            <p class="sub">Turns each pending inbox item into an evaluation bundle you can hand to an AI agent. The Desk does not auto-evaluate or auto-move items.</p>
+          </header>
+          <div class="card pipeline-card">
+            <div class="pipeline-toolbar">
+              <button type="button" class="btn primary" id="btn-pipeline-refresh">Refresh</button>
+              <button type="button" class="btn ghost" id="btn-pipeline-copy-all" disabled>Copy all bundles</button>
+            </div>
+            <p class="pipeline-error" id="pipeline-error" role="alert" hidden></p>
+            <div class="pipeline-mount" id="pipeline-mount"></div>
+          </div>
+        </section>
+
+        <!-- Deep research bundle -->
+        <section class="view" id="view-deep" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Deep research</h2>
+            <p class="sub">Produces a structured research prompt you can paste into your AI tool of choice.</p>
+          </header>
+          <div class="card deep-card">
+            <div class="deep-grid">
+              <label class="deep-field">Company <input type="text" id="deep-company" placeholder="e.g. Stripe" /></label>
+              <label class="deep-field">Role <input type="text" id="deep-role" placeholder="e.g. Staff ML Engineer" /></label>
+            </div>
+            <div class="deep-actions">
+              <button type="button" class="btn primary" id="btn-deep-copy">Copy research prompt</button>
+            </div>
+            <pre class="pdf-output" id="deep-preview" aria-live="polite">Fill company + role, then copy.</pre>
+          </div>
+        </section>
+
+        <!-- Training assessment bundle -->
+        <section class="view" id="view-training" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Training assessment</h2>
+            <p class="sub">Evaluate a course/cert against your North Star and propose a plan or a better alternative.</p>
+          </header>
+          <div class="card training-card">
+            <label class="deep-field">Course / certification <input type="text" id="training-title" placeholder="e.g. DeepLearning.AI LLMOps" /></label>
+            <label class="apply-label"
+              >Link or syllabus (optional)
+              <textarea id="training-details" class="cv-textarea" rows="5" placeholder="Paste link, syllabus bullets, duration, cost, your goal…"></textarea>
+            </label>
+            <div class="deep-actions">
+              <button type="button" class="btn primary" id="btn-training-copy">Copy assessment bundle</button>
+            </div>
+            <pre class="pdf-output" id="training-preview" aria-live="polite">Fill the course, then copy.</pre>
+          </div>
+        </section>
+
+        <!-- Project evaluation bundle -->
+        <section class="view" id="view-project" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Project idea</h2>
+            <p class="sub">Score a portfolio project idea and output a build plan + interview pack requirements.</p>
+          </header>
+          <div class="card project-card">
+            <label class="deep-field">Project idea <input type="text" id="project-title" placeholder="e.g. LLM eval harness for RAG systems" /></label>
+            <label class="apply-label"
+              >Context (optional)
+              <textarea id="project-details" class="cv-textarea" rows="6" placeholder="Who it’s for, what it demonstrates, demo idea, metrics, timeline…"></textarea>
+            </label>
+            <div class="deep-actions">
+              <button type="button" class="btn primary" id="btn-project-copy">Copy project evaluation bundle</button>
+            </div>
+            <pre class="pdf-output" id="project-preview" aria-live="polite">Fill the idea, then copy.</pre>
+          </div>
+        </section>
+
+        <!-- Runbook -->
+        <section class="view" id="view-run" hidden>
+          <header class="view-head">
+            <h2 class="view-title">Runbook</h2>
+            <p class="sub">
+              Toolkit actions you’d usually run from a terminal — validate setup, scan for jobs, clean the ledger, analyse patterns — run locally with one click.
+            </p>
+          </header>
+          <div class="run-output-card">
+            <div class="run-output-head">
+              <span class="label-title">Output</span>
+              <button type="button" class="btn quiet" id="btn-run-clear" title="Clear output">Clear</button>
+            </div>
+            <pre class="run-output" id="run-output" aria-live="polite">Pick an action and press Run.</pre>
+          </div>
+          <div id="runbook-mount" class="runbook-mount"></div>
+        </section>
+
+        <!-- Tracker -->
+        <section class="view" id="view-tracker">
+          <header class="topbar">
+            <div class="topbar-left">
+              <h2 class="view-title topbar-title">Ledger</h2>
+              <p class="sub">Your application history — scores and decisions you already recorded.</p>
+            </div>
+            <div class="topbar-actions">
+              <button type="button" class="btn quiet" id="btn-score-lab" title="Compare score breakdowns from two reports">Score lab</button>
+              <button type="button" class="btn ghost" id="btn-compare-offers" disabled title="Pick 2–3 rows">Compare offers</button>
+              <button type="button" class="btn primary btn-with-icon" id="btn-add">Add application</button>
+              <button type="button" class="btn ghost btn-icon-only" id="btn-refresh" title="Reload ledger" aria-label="Reload ledger"></button>
+            </div>
+          </header>
+
+          <section class="metrics" id="metrics" aria-live="polite"></section>
+
+          <section class="card ledger-dash-card" id="ledger-dashboard" aria-label="Pipeline dashboard">
+            <div id="ledger-dashboard-body"></div>
+          </section>
+
+          <p class="compare-hint muted" id="compare-hint" hidden>Select 2–3 rows (checkboxes) to compare offer signals from reports.</p>
+
+          <section class="toolbar">
+            <label class="search-wrap">
+              <span class="sr-only">Search</span>
+              <input type="search" id="q" placeholder="Search company, role, notes…" autocomplete="off" />
+            </label>
+            <div class="filters" id="filters"></div>
+          </section>
+
+          <section class="table-wrap">
+            <table class="apps-table" id="apps-table">
+              <thead>
+                <tr>
+                  <th class="th-cb" title="Select for compare"><span class="sr-only">Pick</span></th>
+                  <th data-sort="num">#</th>
+                  <th data-sort="date">Date</th>
+                  <th data-sort="company">Company</th>
+                  <th data-sort="role">Role</th>
+                  <th data-sort="score">Score</th>
+                  <th data-sort="status">Status</th>
+                  <th>PDF</th>
+                  <th>Report</th>
+                  <th>Link</th>
+                  <th class="th-desk-tools">Desk</th>
+                </tr>
+              </thead>
+              <tbody id="apps-body"></tbody>
+            </table>
+            <p class="empty" id="empty-state" hidden>No applications match.</p>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="modal-edit">
+      <form method="dialog" id="form-edit" class="modal-card">
+        <header class="modal-head">
+          <h3>Edit application</h3>
+          <button type="button" class="icon-btn" id="close-edit" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <input type="hidden" name="num" id="f-num" />
+          <div class="field-grid">
+            <label>Date <input type="date" name="date" id="f-date" required /></label>
+            <label>Company <input type="text" name="company" id="f-company" required /></label>
+            <label>Role <input type="text" name="role" id="f-role" required /></label>
+            <label>Score <input type="text" name="score" id="f-score" placeholder="4.2/5" /></label>
+            <label>Status <select name="status" id="f-status"></select></label>
+            <label>PDF <input type="text" name="pdf" id="f-pdf" placeholder="✅ or ❌" /></label>
+            <label class="span-2">Report cell <input type="text" name="report" id="f-report" /></label>
+            <label class="span-2">Notes <textarea name="notes" id="f-notes" rows="3"></textarea></label>
+            <label class="span-2"
+              >Why are you changing status? <span class="muted small">(optional — logged to your decision journal when status changes)</span
+              ><textarea name="decisionWhy" id="f-decision-why" rows="2" placeholder="e.g. Moving to Applied after tailoring CV; or: Not a fit — Korean required"></textarea></label
+            >
+            <details class="span-2 preapply-details" id="preapply-wrap" hidden>
+              <summary>Optional — before marking <strong>Applied</strong></summary>
+              <div class="preapply-inner">
+                <label class="check"><input type="checkbox" id="f-pa-custom" /> Customized materials for this role</label>
+                <label class="check"><input type="checkbox" id="f-pa-live" /> Verified the posting is still live (browser)</label>
+                <label class="check"
+                  ><input type="checkbox" id="f-pa-log" /> Also append a one-line checklist entry to your apply log (only when you check this)</label
+                >
+              </div>
+            </details>
+            <p class="span-2 job-url" id="f-joburl-wrap" hidden>
+              <span class="label-title">Posting URL</span>
+              <a id="f-joburl" href="#" target="_blank" rel="noopener"></a>
+            </p>
+          </div>
+        </div>
+        <footer class="modal-foot modal-foot-stack">
+          <div class="modal-foot-row">
+            <button type="button" class="btn ghost" id="btn-edit-open-prep">Open prep</button>
+            <button type="button" class="btn ghost" id="btn-edit-open-apply">Apply desk</button>
+            <button type="button" class="btn ghost" id="btn-edit-from-report">Prep from report</button>
+            <button type="button" class="btn ghost" id="btn-edit-rehearsal">Rehearsal</button>
+          </div>
+          <div class="modal-foot-row modal-foot-row-end">
+            <button type="button" class="btn ghost" id="cancel-edit">Cancel</button>
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog class="modal modal-wide" id="modal-compare">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Compare offers</h3>
+          <button type="button" class="icon-btn" id="close-compare" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <p class="muted compare-lead">Signals pulled from evaluation report headers — read-only.</p>
+          <div class="table-wrap compare-table-wrap">
+            <table class="apps-table compare-table" id="compare-table">
+              <thead id="compare-thead"></thead>
+              <tbody id="compare-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn primary" id="btn-close-compare">Done</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog class="modal modal-wide" id="modal-calibration">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Score lab</h3>
+          <button type="button" class="icon-btn" id="close-calibration" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <p class="muted">Pick two ledger rows with reports. See which scoring dimensions differ — useful after a CV or profile change.</p>
+          <div class="calibration-picks">
+            <label>Report A <select id="cal-a"></select></label>
+            <label>Report B <select id="cal-b"></select></label>
+            <button type="button" class="btn primary" id="btn-cal-run">Compare scores</button>
+          </div>
+          <div id="cal-results" class="cal-results"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modal-overlap">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Overlap detail</h3>
+          <button type="button" class="icon-btn" id="close-overlap" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body" id="overlap-body"></div>
+        <footer class="modal-foot">
+          <button type="button" class="btn primary" id="btn-close-overlap">Close</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modal-interview-notebook">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>New company notebook</h3>
+          <button type="button" class="icon-btn" id="close-interview-notebook" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <div class="field-grid single">
+            <label class="interview-modal-label"
+              >Notebook name
+              <input
+                type="text"
+                id="interview-notebook-title"
+                placeholder="e.g. Stripe — Staff Engineer"
+                autocomplete="off"
+                maxlength="120"
+              />
+            </label>
+            <p class="muted small interview-modal-hint">This becomes the title at the top of the page. You can edit it anytime in the editor.</p>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn ghost" id="cancel-interview-notebook">Cancel</button>
+          <button type="button" class="btn primary" id="confirm-interview-notebook">Create</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog class="modal" id="modal-add">
+      <form method="dialog" id="form-add" class="modal-card">
+        <header class="modal-head">
+          <h3>New application</h3>
+          <button type="button" class="icon-btn" id="close-add" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <div class="field-grid">
+            <label>Date <input type="date" name="date" id="a-date" /></label>
+            <label>Company <input type="text" name="company" id="a-company" required /></label>
+            <label>Role <input type="text" name="role" id="a-role" required /></label>
+            <label>Score <input type="text" name="score" id="a-score" placeholder="0.0/5" value="0.0/5" /></label>
+            <label>Status <select name="status" id="a-status"></select></label>
+            <label>PDF <input type="text" name="pdf" id="a-pdf" value="❌" /></label>
+            <label class="span-2">Report <input type="text" name="report" id="a-report" placeholder="Link to evaluation report (markdown link)" /></label>
+            <label class="span-2">Notes <textarea name="notes" id="a-notes" rows="2"></textarea></label>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn ghost" id="cancel-add">Cancel</button>
+          <button type="submit" class="btn primary">Create</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div id="focus-chrome" class="focus-chrome" hidden>
+      <div class="focus-chrome-inner">
+        <span class="focus-dnd-badge" aria-hidden="true">●</span>
+        <span class="focus-dnd-label">Focus</span>
+        <span class="focus-timer mono" id="focus-timer-display">25:00</span>
+        <label class="focus-view-label"
+          >View
+          <select id="focus-view-switch" class="focus-select"></select>
+        </label>
+        <button type="button" class="btn quiet" id="focus-pause" aria-pressed="false">Pause</button>
+        <button type="button" class="btn ghost" id="focus-end">End</button>
+      </div>
+    </div>
+
+    <dialog class="modal" id="dialog-focus">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Focus session</h3>
+          <button type="button" class="icon-btn" id="close-focus-dialog" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+          <p class="muted">Dim the shell to a single workspace and run a countdown. You can switch views without leaving focus.</p>
+          <div class="field-grid single">
+            <label
+              >Duration
+              <select id="focus-duration">
+                <option value="900">15 min</option>
+                <option value="1500" selected>25 min</option>
+                <option value="2700">45 min</option>
+                <option value="5400">90 min</option>
+              </select>
+            </label>
+            <label
+              >Start in
+              <select id="focus-start-view">
+                <option value="interview-story">Interview · STAR story bank</option>
+                <option value="interview-prep">Interview · Company prep</option>
+                <option value="inbox">Inbox</option>
+                <option value="apply">Apply</option>
+                <option value="outreach">Outreach · LinkedIn</option>
+                <option value="followup">Follow-up cadence</option>
+                <option value="patterns">Patterns</option>
+                <option value="pdf">PDF</option>
+                <option value="pipeline">Pipeline</option>
+                <option value="deep">Deep research</option>
+                <option value="training">Training</option>
+                <option value="project">Project idea</option>
+                <option value="tracker">Ledger</option>
+                <option value="cv">Manuscript</option>
+                <option value="match">Signals</option>
+                <option value="jobs">Discover</option>
+                <option value="run">Runbook</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn ghost" id="cancel-focus-dialog">Cancel</button>
+          <button type="button" class="btn primary" id="btn-focus-start">Start</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog class="modal modal-wide" id="modal-rehearsal">
+      <div class="modal-card">
+        <header class="modal-head">
+          <h3>Rehearsal</h3>
+          <button type="button" class="icon-btn" id="close-rehearsal" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body rehearsal-modal-body">
+          <div class="rehearsal-modal-bar">
+            <label class="rehearsal-modal-pick-label"
+              >Ledger row
+              <select id="modal-rehearsal-pick" class="interview-select interview-select-wide"></select>
+            </label>
+            <button type="button" class="btn primary" id="btn-modal-rehearsal-load">Load</button>
+          </div>
+          <p class="rehearsal-job-line" id="rehearsal-job-line"></p>
+          <div class="rehearsal-grid">
+            <div class="rehearsal-prompt-card">
+              <div class="rehearsal-round">
+                <span class="muted small">Round</span>
+                <span class="rehearsal-round-timer mono" id="rehearsal-round-display">1:30</span>
+              </div>
+              <p class="rehearsal-prompt-label">STAR story cue</p>
+              <pre class="rehearsal-prompt-text" id="rehearsal-prompt-text"></pre>
+              <div class="rehearsal-prompt-actions">
+                <button type="button" class="btn primary" id="btn-rehearsal-next">Next prompt</button>
+                <button type="button" class="btn ghost" id="btn-rehearsal-round-reset">Reset timer</button>
+              </div>
+            </div>
+            <div class="rehearsal-side">
+              <p class="label-title">From company prep</p>
+              <ul class="rehearsal-q-list" id="rehearsal-q-list"></ul>
+              <p class="muted small" id="rehearsal-prep-missing" hidden>No matching company notebook yet — use Open prep on the ledger row.</p>
+            </div>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button type="button" class="btn primary" id="btn-rehearsal-close">Done</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app/index.mjs" type="module"></script>
+  </body>
+</html>

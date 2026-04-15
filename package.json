@@ -14,7 +14,9 @@
     "update": "node update-system.mjs apply",
     "rollback": "node update-system.mjs rollback",
     "liveness": "node check-liveness.mjs",
-    "scan": "node scan.mjs"
+    "scan": "node scan.mjs",
+    "web": "node --import ./web/load-env.mjs ./web/backend/server.mjs",
+    "build": "node scripts/vercel-sync-public.mjs"
   },
   "keywords": [
     "ai",
@@ -31,6 +33,11 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.22.1",
     "js-yaml": "^4.1.1",
     "playwright": "^1.58.1"
   }

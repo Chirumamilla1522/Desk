@@ -1,0 +1,38 @@
+{
+  "focusTracks": [
+    {
+      "id": "aiml",
+      "label": "AI / ML / LLM",
+      "description": "Model work, applied research, ML platform",
+      "positive": ["AI", "ML", "LLM", "Machine Learning", "GenAI", "MLOps", "LLMOps", "NLP", "Agent", "Agentic"]
+    },
+    {
+      "id": "platform",
+      "label": "Platform & backend",
+      "description": "Infra, data, reliability",
+      "positive": ["Platform", "Infrastructure", "Backend", "Distributed", "Data Engineer", "SRE", "DevOps"]
+    },
+    {
+      "id": "product",
+      "label": "Product & TPM",
+      "description": "Technical product, AI PM",
+      "positive": ["Product Manager", "Technical PM", "TPM", "AI Product", "Program Manager"]
+    },
+    {
+      "id": "solutions",
+      "label": "Solutions / SA / FDE",
+      "description": "Customer-facing technical",
+      "positive": ["Solutions Architect", "Solutions Engineer", "Forward Deployed", "Customer Engineer", "Sales Engineer", "Deployment"]
+    },
+    {
+      "id": "automation",
+      "label": "Automation & internal tools",
+      "description": "RevOps, low-code, business systems",
+      "positive": ["Automation", "Hyperautomation", "GTM Engineer", "RevOps", "Business Systems", "Internal Tools", "No-Code", "Low-Code"]
+    }
+  ],
+  "seniority": {
+    "excludeEntry": ["Junior", "Intern", "Associate ", "Entry Level"],
+    "preferSenior": ["Senior", "Staff", "Principal", "Lead", "Head", "Director"]
+  }
+}

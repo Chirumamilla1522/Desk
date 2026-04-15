@@ -1,3 +1,14 @@
+# Local secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Large nested worktrees
+.claude/worktrees/
+
+# Supabase CLI local state (do not commit)
+supabase/.temp/
+
 # Personal data (user fills these)
 data/applications.md
 data/pipeline.md
@@ -21,6 +32,9 @@ portals.yml
 modes/_profile.md
 .update-dismissed
 .update-lock
+
+# Generated (Vercel: copy of web/frontend for CDN)
+public/
 
 # Generated
 .resolved-prompt-*

@@ -33,6 +33,13 @@ target_roles:
       level: "Mid-Senior"
       fit: "adjacent"
 
+# Dream employers or a deliberate watchlist — used for your own targeting (Desk + modes read profile.yml).
+# This is separate from portals.yml tracked_companies (what the scanner hits).
+target_companies:
+  - "Anthropic"
+  - "Stripe"
+  - "Linear"
+
 narrative:
   # Your professional headline (1 line)
   headline: "ML Engineer turned AI product builder"

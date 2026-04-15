@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>Create account — Career-Ops Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=2026-04-14-auth-desk-ui" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-shell">
+      <header class="auth-brand">
+        <div class="auth-brand-mark" aria-hidden="true">◇</div>
+        <div class="auth-brand-text">
+          <p class="auth-product">Desk</p>
+          <p class="auth-tagline">Career-Ops workspace</p>
+        </div>
+      </header>
+
+      <main class="auth-card-panel">
+        <h2>Create account</h2>
+        <p id="signup-lead" class="auth-lead">Connecting…</p>
+        <form id="signup-form" hidden>
+          <div class="auth-field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email" required />
+          </div>
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              autocomplete="new-password"
+              minlength="6"
+              required
+            />
+          </div>
+          <p class="hint subtle" style="margin: -0.35rem 0 0.5rem; font-size: 0.82rem">At least 6 characters.</p>
+          <div class="auth-actions">
+            <button type="submit" class="btn primary" id="btn-create">Create account</button>
+          </div>
+        </form>
+        <p class="auth-desk-msg" id="signup-msg" hidden role="alert"></p>
+        <footer class="auth-footer auth-links-row">
+          <a href="/auth.html">Sign in</a>
+          <span class="auth-divider" aria-hidden="true">·</span>
+          <a href="/">← Desk</a>
+        </footer>
+      </main>
+    </div>
+    <script type="module">
+      (async function signupInit() {
+        const lead = document.getElementById('signup-lead');
+        const form = document.getElementById('signup-form');
+        const msg = document.getElementById('signup-msg');
+        if (!lead || !form || !msg) return;
+
+        function showErr(t) {
+          msg.hidden = false;
+          msg.classList.add('err');
+          msg.textContent = t;
+        }
+
+        function showInfo(t) {
+          msg.hidden = false;
+          msg.classList.remove('err');
+          msg.textContent = t;
+        }
+
+        function safeNextHref() {
+          const raw = new URLSearchParams(window.location.search).get('next');
+          if (!raw || !raw.startsWith('/')) return '/';
+          if (raw.startsWith('//')) return '/';
+          return raw;
+        }
+
+        try {
+          const res = await fetch('/api/bootstrap', { credentials: 'same-origin' });
+          const raw = await res.text();
+          let b = {};
+          try {
+            b = raw ? JSON.parse(raw) : {};
+          } catch {
+            throw new Error(`Could not read server response (${res.status}). Is the Desk running?`);
+          }
+          if (!res.ok) {
+            lead.textContent = `The server returned an error (${res.status}). Run npm run web from the repo root, then reload.`;
+            return;
+          }
+          if (!b.cloud) {
+            lead.textContent =
+              'Cloud sign-up is not enabled. Set CAREER_OPS_CLOUD=1 and your Supabase keys in .env next to package.json, restart the server, and reload.';
+            return;
+          }
+          lead.textContent =
+            'You will use this account to sync your tracker, CV, profile, portals, and interview prep in the cloud.';
+          form.hidden = false;
+        } catch (e) {
+          lead.textContent = String(e.message || e);
+          return;
+        }
+
+        form.addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+          msg.hidden = true;
+          msg.classList.remove('err');
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value;
+          const r = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            showErr(data.error || r.statusText);
+            return;
+          }
+          if (data.needsConfirmation) {
+            showInfo(`Check your email to confirm (${data.email || email}), then sign in.`);
+            return;
+          }
+          if (data.ok && data.confirmed) {
+            window.location.href = safeNextHref();
+            return;
+          }
+          showInfo('Account created. You can sign in from the sign-in page.');
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -20,6 +20,21 @@ Leer `portals.yml` que contiene:
 - `search_queries`: Lista de queries WebSearch con `site:` filters por portal (descubrimiento amplio)
 - `tracked_companies`: Empresas específicas con `careers_url` para navegación directa
 - `title_filter`: Keywords positive/negative/seniority_boost para filtrado de títulos
+- `location_filter`: Filtrado por ubicación (p. ej. solo EE. UU.) — **debe alinearse con `scan-location-filter.mjs`**
+- `scan_options`: Para `node scan.mjs` — ordenar por fecha de publicación del ATS (`sort_by: posted_at`) y opcionalmente mostrar la fecha en `pipeline.md` (ver `scan.mjs`)
+
+## Filtro de ubicación (EE. UU.)
+
+`node scan.mjs` aplica `location_filter` de `portals.yml` después del filtro de título. Cuando `mode: us`:
+
+1. **Mantener** ofertas con ubicación claramente en EE. UU.: `United States`, `USA`, `U.S.`, códigos de estado válidos (`CA`, `NY`, …), ciudades/metros US en la lista heurística de `scan-location-filter.mjs`, o `Remote` / `Hybrid` **sin** país extranjero cuando `include_unspecified_remote: true`. Con `include_title_in_location_match: true`, evaluar también el **título del puesto** (p. ej. `Applied AI (Tokyo)`) **antes** del filtro de keywords — así se descartan oficinas no-US aunque el campo ubicación sea vago.
+2. **Descartar** ubicaciones con marcadores no-US (EMEA, APAC, ciudades/países fuera de EE. UU., códigos de provincia canadienses `ON`, `BC`, …).
+3. **Por defecto** `include_multiple_locations: false` descarta listados ambiguos tipo "Multiple locations" sin mención a EE. UU.
+4. **`include_empty: true`** conserva filas sin campo de ubicación en la API (datos incompletos).
+
+Para **Playwright (Nivel 1)** y **WebSearch (Nivel 3)**: extraer el texto de ubicación del listado o del snippet cuando exista; si no hay ubicación, tratar como vacío (`include_empty`). **No** añadir al pipeline si la ubicación visible falla el mismo criterio US que implementa `isUSLocation()` en `scan-location-filter.mjs` (importar en Node o replicar la lógica de forma equivalente).
+
+CLI: `node scan.mjs --all-locations` ignora `location_filter` (incluye no-US).
 
 ## Estrategia de descubrimiento (3 niveles)
 
@@ -84,6 +99,8 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
    - 0 keywords de `negative` deben aparecer
    - `seniority_boost` keywords dan prioridad pero no son obligatorios
 
+6b. **Filtrar por ubicación** usando `location_filter` de `portals.yml` (misma semántica que `scan-location-filter.mjs` / `node scan.mjs`). Si `mode: us`, descartar ofertas no-US antes del dedup.
+
 7. **Deduplicar** contra 3 fuentes:
    - `scan-history.tsv` → URL exacta ya vista
    - `applications.md` → empresa + rol normalizado ya evaluado
@@ -112,6 +129,7 @@ Los niveles son aditivos — se ejecutan todos, los resultados se mezclan y dedu
    b. Registrar en `scan-history.tsv`: `{url}\t{date}\t{query_name}\t{title}\t{company}\tadded`
 
 9. **Ofertas filtradas por título**: registrar en `scan-history.tsv` con status `skipped_title`
+9b. **Ofertas filtradas por ubicación**: registrar con status `skipped_location` (opcional pero recomendado para trazabilidad)
 10. **Ofertas duplicadas**: registrar con status `skipped_dup`
 11. **Ofertas expiradas (Nivel 3)**: registrar con status `skipped_expired`
 
@@ -152,6 +170,7 @@ Portal Scan — {YYYY-MM-DD}
 Queries ejecutados: N
 Ofertas encontradas: N total
 Filtradas por título: N relevantes
+Filtradas por ubicación: N (si location_filter activo)
 Duplicadas: N (ya evaluadas o en pipeline)
 Expiradas descartadas: N (links muertos, Nivel 3)
 Nuevas añadidas a pipeline.md: N

@@ -52,7 +52,8 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | `data/applications.md` | Application tracker |
 | `data/pipeline.md` | Inbox of pending URLs |
 | `data/scan-history.tsv` | Scanner dedup history |
-| `portals.yml` | Query and company config |
+| `portals.yml` | Query and company config (`location_filter`, `scan_options` sort by posted date for `scan.mjs`) |
+| `scan.mjs` | API portal scan (Greenhouse/Ashby/Lever); US rules in `scan-location-filter.mjs`; optional recency: `--last-day`/`--last_day`, `--last-week`/`--last_week`, `--since-days`/`--since_days N` |
 | `templates/cv-template.html` | HTML template for CVs |
 | `generate-pdf.mjs` | Playwright: HTML to PDF |
 | `article-digest.md` | Compact proof points from portfolio (optional) |

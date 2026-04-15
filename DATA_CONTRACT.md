@@ -9,7 +9,7 @@ These files contain your personal data, customizations, and work product. Update
 | File | Purpose |
 |------|---------|
 | `cv.md` | Your CV in markdown |
-| `config/profile.yml` | Your identity, targets, comp range |
+| `config/profile.yml` | Your identity, target roles & companies, comp range |
 | `modes/_profile.md` | Your archetypes, narrative, negotiation scripts |
 | `article-digest.md` | Your proof points from portfolio |
 | `interview-prep/story-bank.md` | Your accumulated STAR+R stories |
@@ -48,6 +48,7 @@ These files contain system logic, scripts, templates, and instructions that impr
 | `CLAUDE.md` | Agent instructions |
 | `AGENTS.md` | Codex instructions |
 | `*.mjs` | Utility scripts |
+| `scan-location-filter.mjs` | US location rules for `scan.mjs` |
 | `batch/batch-prompt.md` | Batch worker prompt |
 | `batch/batch-runner.sh` | Batch orchestrator |
 | `dashboard/*` | Go TUI dashboard |
@@ -57,6 +58,23 @@ These files contain system logic, scripts, templates, and instructions that impr
 | `docs/*` | Documentation |
 | `VERSION` | Current version number |
 | `DATA_CONTRACT.md` | This file |
+
+## Supabase (`workspace_documents`)
+
+When the Desk runs in **cloud mode** (`CAREER_OPS_CLOUD=1` + Supabase), signed-in users store copies of many User Layer files in Postgres table **`public.workspace_documents`**.
+
+| Column       | Meaning |
+|-------------|---------|
+| `user_id`   | `auth.users.id` — row owner (RLS). |
+| `path`      | Virtual path under the repo root, same string as on disk (e.g. `cv.md`, `data/applications.md`, `interview-prep/acme.md`, `reports/001-acme-2026-04-01.md`). Unique per user with `path`. |
+| `body`      | File contents (markdown or YAML text). |
+| `mime_type` | Hint for clients (`text/markdown` default; YAML files may use `application/yaml`). Added in migration `20260415120000_workspace_documents_metadata.sql`. |
+| `created_at`| First write time. |
+| `updated_at`| Last upsert. |
+
+Core paths used by the server are defined in `web/backend/lib/workspace-remote.mjs` (`WS` + `WORKSPACE_WRITABLE_PATH_RE` / `isWorkspacePathWritable`). Interview prep and reports use the same table with `interview-prep/*.md` and `reports/*.md` paths.
+
+Run migrations under `supabase/migrations/` (see `docs/HOSTED_AUTH.md` and `cloud/README.md`).
 
 ## The Rule
 

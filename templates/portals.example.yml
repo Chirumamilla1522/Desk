@@ -95,6 +95,20 @@ title_filter:
     - "Head"
     - "Director"
 
+# -- Location filter (see scan-location-filter.mjs) --
+location_filter:
+  mode: none # none | us
+  include_title_in_location_match: true # role title + API location (e.g. "(London)" in title)
+  include_unspecified_remote: true
+  include_empty: true
+  include_multiple_locations: false
+
+# -- Scan output (node scan.mjs) --
+scan_options:
+  sort_by: posted_at # none | posted_at
+  sort_order: desc # asc | desc
+  show_posted_in_pipeline: true
+
 # -- Search queries --
 # Each query triggers a WebSearch. Use site: to filter by portal.
 # The scanner extracts title, URL, and company from results.
