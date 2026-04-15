@@ -1145,6 +1145,31 @@
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      // Diagnostics that work even if module scripts fail to execute.
+      (function () {
+        var el = document.getElementById('js-alive');
+        if (!el) return;
+        el.textContent = 'JS: boot';
+        function set(t) {
+          el.textContent = 'JS: ' + t;
+        }
+        Promise.allSettled([
+          fetch('/app/index.mjs', { cache: 'no-store' }),
+          fetch('/app.js', { cache: 'no-store' }),
+        ]).then(function (rows) {
+          try {
+            var a = rows[0];
+            var b = rows[1];
+            var as = a && a.status === 'fulfilled' ? String(a.value.status) : 'err';
+            var bs = b && b.status === 'fulfilled' ? String(b.value.status) : 'err';
+            set('index ' + as + ', app ' + bs);
+          } catch (e) {
+            set('diag err');
+          }
+        });
+      })();
+    </script>
     <script src="/app/index.mjs" type="module"></script>
   </body>
 </html>
