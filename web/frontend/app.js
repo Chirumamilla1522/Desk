@@ -246,7 +246,10 @@ function wireMainNav() {
   if (!nav || nav.dataset.navWired === '1') return;
   nav.dataset.navWired = '1';
   nav.addEventListener('click', (e) => {
-    const btn = e.target?.closest?.('.nav-item[data-view]');
+    let t = e.target;
+    // Some browsers can surface Text nodes as event targets.
+    while (t && t.nodeType && t.nodeType !== 1) t = t.parentNode;
+    const btn = t?.closest?.('.nav-item[data-view]');
     if (!btn || !nav.contains(btn)) return;
     if (btn.disabled) return;
     const view = btn.dataset.view;
