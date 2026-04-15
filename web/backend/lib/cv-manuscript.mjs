@@ -33,7 +33,7 @@ export function readManuscript(careerOpsRoot) {
   }
 }
 
-function normalizeManuscript(data) {
+export function normalizeManuscript(data) {
   const d = { ...EMPTY_MANUSCRIPT(), ...data };
   if (!Array.isArray(d.skills)) d.skills = [];
   if (!Array.isArray(d.experience) || !d.experience.length) {

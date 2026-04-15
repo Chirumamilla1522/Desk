@@ -39,7 +39,7 @@ import {
 import { readProfile, writeProfile, profileSummary, mergeProfilePatch } from './lib/profile-io.mjs';
 import { parsePipelinePending, parsePipelinePendingFromText } from './lib/pipeline-io.mjs';
 import { loadScanHistoryByUrl } from './lib/scan-history-index.mjs';
-import { readManuscript, writeManuscript, buildCvMarkdown } from './lib/cv-manuscript.mjs';
+import { readManuscript, writeManuscript, buildCvMarkdown, normalizeManuscript, EMPTY_MANUSCRIPT } from './lib/cv-manuscript.mjs';
 import { listCommandsForApi, runCommand } from './lib/command-runner.mjs';
 import { buildJdReferenceHtml, slugifyDesk } from './lib/jd-reference-build.mjs';
 import { computePipelineWeather } from './lib/pipeline-weather.mjs';
@@ -741,11 +741,12 @@ app.get('/api/cv/manuscript', async (req, res) => {
       if (raw != null && String(raw).trim()) {
         try {
           const parsed = JSON.parse(String(raw));
-          return res.json({ manuscript: writeManuscript(ROOT, parsed), storage: 'cloud' });
+          return res.json({ manuscript: normalizeManuscript(parsed), storage: 'cloud' });
         } catch {
           /* fall back */
         }
       }
+      return res.json({ manuscript: EMPTY_MANUSCRIPT(), storage: 'cloud' });
     }
     res.json({ manuscript: readManuscript(ROOT), storage: 'disk' });
   } catch (e) {
@@ -756,7 +757,7 @@ app.get('/api/cv/manuscript', async (req, res) => {
 app.put('/api/cv/manuscript', async (req, res) => {
   try {
     mkdirSync(join(ROOT, 'data'), { recursive: true });
-    const m = writeManuscript(ROOT, req.body || {});
+    const m = normalizeManuscript(req.body || {});
     const md = buildCvMarkdown(m);
     const words = md.trim() ? md.trim().split(/\s+/).length : 0;
 
@@ -768,6 +769,7 @@ app.put('/api/cv/manuscript', async (req, res) => {
       return res.json({ ok: true, manuscript: m, words, path: cvPath(), storage: 'cloud' });
     }
 
+    writeManuscript(ROOT, m);
     const p = cvPath();
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, md, 'utf8');
