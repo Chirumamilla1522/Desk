@@ -1155,6 +1155,13 @@
             It looks like this is your first time here (or you don’t have a CV yet). Upload a PDF resume and we’ll extract the text into your workspace.
           </p>
           <div class="field-grid single">
+            <label>Full name <input type="text" id="onboarding-name" autocomplete="name" /></label>
+            <label>Email <input type="email" id="onboarding-email" autocomplete="email" /></label>
+            <label>Headline (one line) <input type="text" id="onboarding-headline" /></label>
+            <label
+              >Primary target roles (one per line)
+              <textarea id="onboarding-roles" rows="4" spellcheck="true" placeholder="e.g. Backend Engineer&#10;ML Engineer"></textarea
+            ></label>
             <label>
               Resume PDF
               <input type="file" id="onboarding-pdf" accept="application/pdf,.pdf" />

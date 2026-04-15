@@ -583,6 +583,11 @@ app.post('/api/cv/import-pdf', async (req, res) => {
     let buf = null;
     let filename = '';
     let mimetype = '';
+    const fields = {};
+
+    bb.on('field', (name, val) => {
+      fields[String(name || '').trim()] = String(val || '').trim();
+    });
 
     bb.on('file', (_name, file, info) => {
       filename = info?.filename || '';
@@ -655,11 +660,16 @@ app.post('/api/cv/import-pdf', async (req, res) => {
 
       const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
       const basics = {
-        fullName: pickName(lines),
-        email: pickEmail(content),
-        headline: pickHeadline(lines),
+        fullName: fields.fullName || pickName(lines),
+        email: fields.email || pickEmail(content),
+        headline: fields.headline || pickHeadline(lines),
         skills: pickSkills(content),
       };
+      const roles = String(fields.roles || '')
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 12);
 
       const manuscript = {
         ...readManuscript(ROOT),
@@ -690,6 +700,7 @@ app.post('/api/cv/import-pdf', async (req, res) => {
             full_name: basics.fullName || cur?.candidate?.full_name || '',
             email: basics.email || cur?.candidate?.email || '',
           },
+          target_roles: roles.length ? { primary: roles } : {},
           narrative: {
             headline: basics.headline || cur?.narrative?.headline || '',
           },

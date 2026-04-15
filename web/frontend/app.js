@@ -595,6 +595,10 @@ function wireOnboardingUpload() {
   const btnSkip = $('#btn-onboarding-skip');
   const btnClose = $('#close-onboarding');
   const input = $('#onboarding-pdf');
+  const nameIn = $('#onboarding-name');
+  const emailIn = $('#onboarding-email');
+  const headIn = $('#onboarding-headline');
+  const rolesIn = $('#onboarding-roles');
   const msg = $('#onboarding-msg');
 
   function setMsg(t, isErr) {
@@ -631,6 +635,10 @@ function wireOnboardingUpload() {
 
       const fd = new FormData();
       fd.append('file', f, f.name);
+      if (nameIn?.value) fd.append('fullName', nameIn.value);
+      if (emailIn?.value) fd.append('email', emailIn.value);
+      if (headIn?.value) fd.append('headline', headIn.value);
+      if (rolesIn?.value) fd.append('roles', rolesIn.value);
       const r = await fetch('/api/cv/import-pdf', { method: 'POST', body: fd, credentials: 'same-origin' });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || r.statusText);
@@ -645,15 +653,20 @@ function wireOnboardingUpload() {
         // Refresh composer + signals (profile) if server returned them.
         if (data.manuscript) {
           // Best-effort: save manuscript so composer view reflects it.
-          await api('/api/cv/manuscript', { method: 'PUT', body: data.manuscript });
+          await api('/api/cv/manuscript', { method: 'PUT', body: JSON.stringify(data.manuscript) });
         }
-        if (data.profile?.candidate) {
-          const nameEl = $('#pf-name');
-          const emailEl = $('#pf-email');
-          const hlEl = $('#pf-headline');
-          if (nameEl && data.profile.candidate.full_name) nameEl.value = data.profile.candidate.full_name;
-          if (emailEl && data.profile.candidate.email) emailEl.value = data.profile.candidate.email;
-          if (hlEl && data.profile.narrative?.headline) hlEl.value = data.profile.narrative.headline;
+        // Always refresh Signals + Composer from the server so the UI stays in sync.
+        try {
+          const { manuscript } = await api('/api/cv/manuscript');
+          if (manuscript) renderComposer(manuscript);
+        } catch {
+          /* ignore */
+        }
+        try {
+          const prof = await api('/api/profile');
+          await loadProfileFields(prof);
+        } catch {
+          /* ignore */
         }
       } catch {
         /* ignore */
