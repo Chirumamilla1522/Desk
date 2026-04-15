@@ -7,7 +7,7 @@
 - **Root `server.mjs`** exports the Express app (`web/backend/app.mjs`) for Vercel’s [Express integration](https://vercel.com/docs/frameworks/backend/express).
 - **`npm run build`** copies `web/frontend` → **`public/`** so Vercel’s CDN can serve the UI. On Vercel, `express.static` for the frontend is not used for assets; the copy is required.
 - **Local dev** is unchanged: `npm run web` runs `web/backend/server.mjs` with a real HTTP listener.
-- **`vercel.json`** ensures requests hit the Express function (static files served first, everything else routed to `server.mjs`).
+- **`vercel.json`** routes **`/`** to the Express function first (so the server can return **welcome** vs **desk**), then static assets from `public/`, then everything else to Express. The SPA shell is **`desk.html`** (not `index.html`) so Vercel’s CDN does not steal `/` with a default index file.
 
 ## One-time setup
 

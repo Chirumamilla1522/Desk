@@ -520,6 +520,13 @@ body.auth-page {
   color: var(--accent-hover);
 }
 
+.auth-muted-link {
+  color: var(--muted);
+  text-decoration: none;
+  cursor: default;
+  pointer-events: none;
+}
+
 .auth-footer .auth-divider {
   margin: 0 0.35rem;
   opacity: 0.45;

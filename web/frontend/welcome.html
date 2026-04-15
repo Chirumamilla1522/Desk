@@ -38,7 +38,7 @@
         <p class="auth-desk-msg" id="welcome-msg" hidden role="status"></p>
 
         <footer class="auth-footer auth-links-row">
-          <a href="/" id="link-desk">Continue to Desk</a>
+          <a href="/" id="link-desk">Open Desk</a>
           <span class="auth-divider" aria-hidden="true">·</span>
           <a href="/api/health" target="_blank" rel="noreferrer">Health</a>
         </footer>
@@ -61,7 +61,6 @@
         }
 
         const safeNext = safeNextHref(next);
-        if (linkDesk) linkDesk.href = safeNext;
         if (aIn) aIn.href = `/auth.html?next=${encodeURIComponent(safeNext)}`;
         if (aUp) aUp.href = `/signup?next=${encodeURIComponent(safeNext)}`;
 
@@ -69,6 +68,21 @@
           msg.hidden = false;
           msg.textContent = 'After you sign in, we’ll send you back to where you were.';
         }
+
+        fetch('/api/bootstrap', { credentials: 'same-origin' })
+          .then((r) => r.json())
+          .then((b) => {
+            if (!linkDesk) return;
+            if (b.requireAuth) {
+              linkDesk.textContent = 'Desk opens after you sign in';
+              linkDesk.removeAttribute('href');
+              linkDesk.classList.add('auth-muted-link');
+            } else {
+              linkDesk.href = '/';
+              linkDesk.textContent = 'Open Desk';
+            }
+          })
+          .catch(() => {});
       })();
     </script>
   </body>
