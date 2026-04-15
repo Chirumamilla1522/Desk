@@ -9,8 +9,6 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
-import Busboy from 'busboy';
-import pdfParse from 'pdf-parse';
 
 import {
   readApplications,
@@ -569,6 +567,13 @@ app.post('/api/cv/import-pdf', async (req, res) => {
   try {
     const cu = await getSessionUser(req);
     if (isCloudEnabled() && !cu) return res.status(401).json({ error: 'Sign in required', auth: true });
+
+    // Lazy-load heavy/optional deps so the function doesn't crash at cold start
+    // if the PDF import route is unused or a dependency fails to load.
+    const busboyMod = await import('busboy');
+    const pdfParseMod = await import('pdf-parse');
+    const Busboy = busboyMod.default || busboyMod;
+    const pdfParse = pdfParseMod.default || pdfParseMod;
 
     const bb = Busboy({ headers: req.headers, limits: { files: 1, fileSize: 8 * 1024 * 1024 } });
     let buf = null;
