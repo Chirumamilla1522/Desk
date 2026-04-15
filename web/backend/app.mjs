@@ -251,6 +251,12 @@ app.post('/api/auth/logout', (_req, res) => {
   res.json({ ok: true });
 });
 
+/** Browser-friendly logout (clears cookies and redirects). */
+app.get('/logout', (_req, res) => {
+  clearSessionCookies(res);
+  res.status(302).setHeader('Location', '/welcome').end();
+});
+
 /** Server-side email/password (alternative to Supabase client on /auth.html). */
 app.post('/api/auth/login', async (req, res) => {
   try {
