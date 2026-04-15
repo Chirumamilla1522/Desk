@@ -575,7 +575,8 @@ async function loadWorkspaceHints(workspacePrefetched) {
     try {
       const needsCv = w?.setup?.cv === false;
       const dlg = $('#modal-onboarding');
-      if (needsCv && dlg && typeof dlg.showModal === 'function' && !dlg.open) {
+      const dismissed = localStorage.getItem('co_onboarding_dismissed') === '1';
+      if (needsCv && !dismissed && dlg && typeof dlg.showModal === 'function' && !dlg.open) {
         dlg.showModal();
       }
     } catch {
@@ -616,8 +617,17 @@ function wireOnboardingUpload() {
     }
   }
 
-  btnSkip?.addEventListener('click', () => close());
-  btnClose?.addEventListener('click', () => close());
+  function dismiss() {
+    try {
+      localStorage.setItem('co_onboarding_dismissed', '1');
+    } catch {
+      /* ignore */
+    }
+    close();
+  }
+
+  btnSkip?.addEventListener('click', () => dismiss());
+  btnClose?.addEventListener('click', () => dismiss());
 
   btnUp?.addEventListener('click', async () => {
     try {
@@ -645,7 +655,7 @@ function wireOnboardingUpload() {
 
       setMsg(`Imported. (${data.words || 0} words)`, false);
       toast('Resume imported');
-      close();
+      dismiss();
       // Refresh CV text in state so Manuscript view can load immediately.
       try {
         const cv0 = await api('/api/cv');
@@ -2359,6 +2369,11 @@ if (btnManuscriptSave) {
       $('#cv-body').value = state.cvText;
       $('#manuscript-meta').textContent = `${out.words || 0} words · CV published from composer`;
       toast('Composer saved — CV updated');
+      try {
+        localStorage.setItem('co_onboarding_dismissed', '1');
+      } catch {
+        /* ignore */
+      }
       loadWorkspaceHints();
     } catch (e) {
       toast(e.message);

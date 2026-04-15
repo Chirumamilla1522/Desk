@@ -671,19 +671,18 @@ app.post('/api/cv/import-pdf', async (req, res) => {
         .filter(Boolean)
         .slice(0, 12);
 
-      const manuscript = {
+      const manuscript = normalizeManuscript({
         ...readManuscript(ROOT),
         fullName: basics.fullName || readManuscript(ROOT).fullName,
         email: basics.email || readManuscript(ROOT).email,
         headline: basics.headline || readManuscript(ROOT).headline,
         skills: basics.skills.length ? basics.skills : readManuscript(ROOT).skills,
-      };
-      const mdFromComposer = buildCvMarkdown(manuscript);
+      });
 
       if (isCloudEnabled() && cu) {
         const sb = sbFor(cu);
-        // Store extracted text as CV markdown (user can refine later).
-        await upsertWorkspaceBody(sb, cu.user.id, WS.CV, mdFromComposer || content, { mimeType: 'text/markdown' });
+        // Store extracted text as CV markdown (user can refine later). Do NOT overwrite with a weak composer render.
+        await upsertWorkspaceBody(sb, cu.user.id, WS.CV, content, { mimeType: 'text/markdown' });
         await upsertWorkspaceBody(sb, cu.user.id, WS.MANUSCRIPT, JSON.stringify(manuscript), { mimeType: 'text/plain' });
         // Prefill key profile fields (Signals) if missing.
         const rawProfile = await getWorkspaceBody(sb, WS.PROFILE);
@@ -711,7 +710,7 @@ app.post('/api/cv/import-pdf', async (req, res) => {
         });
         return res.json({
           ok: true,
-          words: (mdFromComposer || content).split(/\s+/).filter(Boolean).length,
+          words: content.split(/\s+/).filter(Boolean).length,
           storage: 'cloud',
           manuscript,
           profile: profileSummary(nextProf),
@@ -720,9 +719,9 @@ app.post('/api/cv/import-pdf', async (req, res) => {
 
       const p = cvPath();
       mkdirSync(dirname(p), { recursive: true });
-      writeFileSync(p, mdFromComposer || content, 'utf8');
+      writeFileSync(p, content, 'utf8');
       writeManuscript(ROOT, manuscript);
-      res.json({ ok: true, words: (mdFromComposer || content).split(/\s+/).filter(Boolean).length, storage: 'disk', manuscript });
+      res.json({ ok: true, words: content.split(/\s+/).filter(Boolean).length, storage: 'disk', manuscript });
     });
 
     req.pipe(bb);
