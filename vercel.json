@@ -1,9 +1,12 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "api/index.mjs", "use": "@vercel/node" }
+  ],
   "routes": [
-    { "src": "^/$", "dest": "server.mjs" },
-    { "src": "/welcome", "dest": "/welcome.html" },
+    { "src": "^/welcome$", "dest": "/welcome.html" },
+    { "src": "^/$", "dest": "api/index.mjs" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "server.mjs" }
+    { "src": "/(.*)", "dest": "api/index.mjs" }
   ]
 }
