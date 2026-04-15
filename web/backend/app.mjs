@@ -1237,16 +1237,23 @@ const STATIC_PUBLIC_MAX_MS = IS_PROD_STATIC_CACHE ? 60 * 60 * 1000 : 0;
 const DESK_SHELL = join(PUBLIC, 'desk.html');
 const WELCOME_HTML = join(PUBLIC, 'welcome.html');
 
-/**
- * `/` must be handled before `express.static` (and on Vercel, before CDN serves a default `index.html`),
- * otherwise the Desk SPA loads for everyone and the welcome page never appears.
- */
-app.get('/', async (req, res, next) => {
+/** Landing is always the Welcome page (even if signed in). */
+app.get('/', (req, res, next) => {
+  try {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    return res.sendFile(WELCOME_HTML);
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Desk shell lives under `/desk` so `/` can stay a landing page. */
+app.get('/desk', async (req, res, next) => {
   try {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     if (isDeskAuthEnforced()) {
       const u = await getSessionUser(req);
-      if (!u) return res.sendFile(WELCOME_HTML);
+      if (!u) return res.status(302).setHeader('Location', '/welcome?next=/desk').end();
     }
     return res.sendFile(DESK_SHELL);
   } catch (e) {
@@ -1326,8 +1333,10 @@ app.get('/signup', (_req, res) => {
   res.sendFile(join(PUBLIC, 'signup.html'));
 });
 
-app.get('*', (_req, res) => {
-  res.sendFile(DESK_SHELL);
+app.get('*', (req, res) => {
+  // Keep SPA deep-links working under `/desk/*`; everything else returns the landing.
+  if (req.path === '/desk' || req.path.startsWith('/desk/')) return res.sendFile(DESK_SHELL);
+  res.sendFile(WELCOME_HTML);
 });
 
 export default app;

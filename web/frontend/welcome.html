@@ -38,7 +38,7 @@
         <p class="auth-desk-msg" id="welcome-msg" hidden role="status"></p>
 
         <footer class="auth-footer auth-links-row">
-          <a href="/" id="link-desk">Open Desk</a>
+          <a href="/desk" id="link-desk">Open Desk</a>
           <span class="auth-divider" aria-hidden="true">·</span>
           <a href="/api/health" target="_blank" rel="noreferrer">Health</a>
         </footer>
@@ -78,7 +78,7 @@
               linkDesk.removeAttribute('href');
               linkDesk.classList.add('auth-muted-link');
             } else {
-              linkDesk.href = '/';
+              linkDesk.href = '/desk';
               linkDesk.textContent = 'Open Desk';
             }
           })
