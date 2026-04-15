@@ -4,6 +4,7 @@
 
 export const WS = {
   CV: 'cv.md',
+  MANUSCRIPT: 'data/cv-manuscript.json',
   PROFILE: 'config/profile.yml',
   PORTALS: 'portals.yml',
   APPLICATIONS: 'data/applications.md',
@@ -12,7 +13,7 @@ export const WS = {
 
 /** Paths allowed for PUT /api/workspace/document (single-segment report + prep filenames). */
 export const WORKSPACE_WRITABLE_PATH_RE =
-  /^(reports\/[^/]+\.md|cv\.md|config\/profile\.yml|portals\.yml|data\/applications\.md|data\/pipeline\.md|interview-prep\/[^/]+\.md)$/;
+  /^(reports\/[^/]+\.md|cv\.md|data\/cv-manuscript\.json|config\/profile\.yml|portals\.yml|data\/applications\.md|data\/pipeline\.md|interview-prep\/[^/]+\.md)$/;
 
 export function isWorkspacePathWritable(rel) {
   return WORKSPACE_WRITABLE_PATH_RE.test(String(rel || '').trim().replace(/^\/+/, ''));

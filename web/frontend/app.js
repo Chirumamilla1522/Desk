@@ -642,6 +642,19 @@ function wireOnboardingUpload() {
       try {
         const cv0 = await api('/api/cv');
         state.cvText = cv0.content || '';
+        // Refresh composer + signals (profile) if server returned them.
+        if (data.manuscript) {
+          // Best-effort: save manuscript so composer view reflects it.
+          await api('/api/cv/manuscript', { method: 'PUT', body: data.manuscript });
+        }
+        if (data.profile?.candidate) {
+          const nameEl = $('#pf-name');
+          const emailEl = $('#pf-email');
+          const hlEl = $('#pf-headline');
+          if (nameEl && data.profile.candidate.full_name) nameEl.value = data.profile.candidate.full_name;
+          if (emailEl && data.profile.candidate.email) emailEl.value = data.profile.candidate.email;
+          if (hlEl && data.profile.narrative?.headline) hlEl.value = data.profile.narrative.headline;
+        }
       } catch {
         /* ignore */
       }

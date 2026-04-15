@@ -618,14 +618,100 @@ app.post('/api/cv/import-pdf', async (req, res) => {
       const cleaned = text.replace(/\r\n/g, '\n').replace(/[ \t]+\n/g, '\n').trim();
       const content = cleaned.length > 700_000 ? cleaned.slice(0, 700_000) : cleaned;
 
-      const p = cvPath();
-      if (isCloudEnabled() && cu) {
-        await upsertWorkspaceBody(sbFor(cu), cu.user.id, WS.CV, content, { mimeType: 'text/markdown' });
-        return res.json({ ok: true, words: content.split(/\s+/).filter(Boolean).length, storage: 'cloud' });
+      function pickEmail(s) {
+        const m = String(s || '').match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+        return m ? m[0] : '';
       }
+      function pickName(lines) {
+        const first = String(lines.find((l) => l && l.trim()) || '').trim();
+        if (!first) return '';
+        if (first.includes('@')) return '';
+        if (first.length > 60) return '';
+        // Heuristic: "First Last" style.
+        const parts = first.split(/\s+/).filter(Boolean);
+        if (parts.length < 2) return '';
+        return first;
+      }
+      function pickHeadline(lines) {
+        const idx = lines.findIndex((l) => l && l.trim());
+        if (idx < 0) return '';
+        const next = String(lines[idx + 1] || '').trim();
+        if (!next || next.length > 120 || next.includes('@')) return '';
+        return next;
+      }
+      function pickSkills(s) {
+        const raw = String(s || '');
+        const m = raw.match(/^\s*skills?\s*[:\-]?\s*$/im);
+        if (!m) return [];
+        const start = raw.slice(m.index + m[0].length);
+        const chunk = start.split(/\n{2,}/)[0] || '';
+        return chunk
+          .replace(/\n/g, ' ')
+          .split(/[,·•|]/)
+          .map((x) => x.trim())
+          .filter((x) => x.length >= 2 && x.length <= 40)
+          .slice(0, 40);
+      }
+
+      const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
+      const basics = {
+        fullName: pickName(lines),
+        email: pickEmail(content),
+        headline: pickHeadline(lines),
+        skills: pickSkills(content),
+      };
+
+      const manuscript = {
+        ...readManuscript(ROOT),
+        fullName: basics.fullName || readManuscript(ROOT).fullName,
+        email: basics.email || readManuscript(ROOT).email,
+        headline: basics.headline || readManuscript(ROOT).headline,
+        skills: basics.skills.length ? basics.skills : readManuscript(ROOT).skills,
+      };
+      const mdFromComposer = buildCvMarkdown(manuscript);
+
+      if (isCloudEnabled() && cu) {
+        const sb = sbFor(cu);
+        // Store extracted text as CV markdown (user can refine later).
+        await upsertWorkspaceBody(sb, cu.user.id, WS.CV, mdFromComposer || content, { mimeType: 'text/markdown' });
+        await upsertWorkspaceBody(sb, cu.user.id, WS.MANUSCRIPT, JSON.stringify(manuscript), { mimeType: 'text/plain' });
+        // Prefill key profile fields (Signals) if missing.
+        const rawProfile = await getWorkspaceBody(sb, WS.PROFILE);
+        let cur = readProfile(ROOT) || {};
+        if (rawProfile != null && String(rawProfile).trim()) {
+          try {
+            cur = yaml.load(rawProfile) || cur;
+          } catch {
+            /* keep seed */
+          }
+        }
+        const patch = {
+          candidate: {
+            full_name: basics.fullName || cur?.candidate?.full_name || '',
+            email: basics.email || cur?.candidate?.email || '',
+          },
+          narrative: {
+            headline: basics.headline || cur?.narrative?.headline || '',
+          },
+        };
+        const nextProf = mergeProfilePatch(cur, patch);
+        await upsertWorkspaceBody(sb, cu.user.id, WS.PROFILE, yaml.dump(nextProf, { lineWidth: -1, noRefs: true }), {
+          mimeType: 'application/yaml',
+        });
+        return res.json({
+          ok: true,
+          words: (mdFromComposer || content).split(/\s+/).filter(Boolean).length,
+          storage: 'cloud',
+          manuscript,
+          profile: profileSummary(nextProf),
+        });
+      }
+
+      const p = cvPath();
       mkdirSync(dirname(p), { recursive: true });
-      writeFileSync(p, content, 'utf8');
-      res.json({ ok: true, words: content.split(/\s+/).filter(Boolean).length, storage: 'disk' });
+      writeFileSync(p, mdFromComposer || content, 'utf8');
+      writeManuscript(ROOT, manuscript);
+      res.json({ ok: true, words: (mdFromComposer || content).split(/\s+/).filter(Boolean).length, storage: 'disk', manuscript });
     });
 
     req.pipe(bb);
@@ -634,25 +720,47 @@ app.post('/api/cv/import-pdf', async (req, res) => {
   }
 });
 
-app.get('/api/cv/manuscript', (_req, res) => {
+app.get('/api/cv/manuscript', async (req, res) => {
   try {
     mkdirSync(join(ROOT, 'data'), { recursive: true });
-    res.json({ manuscript: readManuscript(ROOT) });
+    const cu = await getSessionUser(req);
+    if (cu && isCloudEnabled()) {
+      const sb = sbFor(cu);
+      const raw = await getWorkspaceBody(sb, WS.MANUSCRIPT);
+      if (raw != null && String(raw).trim()) {
+        try {
+          const parsed = JSON.parse(String(raw));
+          return res.json({ manuscript: writeManuscript(ROOT, parsed), storage: 'cloud' });
+        } catch {
+          /* fall back */
+        }
+      }
+    }
+    res.json({ manuscript: readManuscript(ROOT), storage: 'disk' });
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }
 });
 
-app.put('/api/cv/manuscript', (req, res) => {
+app.put('/api/cv/manuscript', async (req, res) => {
   try {
     mkdirSync(join(ROOT, 'data'), { recursive: true });
     const m = writeManuscript(ROOT, req.body || {});
     const md = buildCvMarkdown(m);
+    const words = md.trim() ? md.trim().split(/\s+/).length : 0;
+
+    const cu = await getSessionUser(req);
+    if (cu && isCloudEnabled()) {
+      const sb = sbFor(cu);
+      await upsertWorkspaceBody(sb, cu.user.id, WS.MANUSCRIPT, JSON.stringify(m), { mimeType: 'text/plain' });
+      await upsertWorkspaceBody(sb, cu.user.id, WS.CV, md, { mimeType: 'text/markdown' });
+      return res.json({ ok: true, manuscript: m, words, path: cvPath(), storage: 'cloud' });
+    }
+
     const p = cvPath();
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, md, 'utf8');
-    const words = md.trim() ? md.trim().split(/\s+/).length : 0;
-    res.json({ ok: true, manuscript: m, words, path: p });
+    res.json({ ok: true, manuscript: m, words, path: p, storage: 'disk' });
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }
