@@ -1170,6 +1170,27 @@
         });
       })();
     </script>
-    <script src="/app/index.mjs" type="module"></script>
+    <script type="module">
+      // Module-level diagnostics: if this runs, the browser supports modules and inline modules are allowed.
+      (function () {
+        var el = document.getElementById('js-alive');
+        if (!el) return;
+        el.textContent = 'JS: module start';
+        import('/app/index.mjs')
+          .then(function () {
+            el.textContent = 'JS: module ok';
+          })
+          .catch(function (e) {
+            var msg = (e && (e.message || e.name)) ? String(e.message || e.name) : 'unknown';
+            el.textContent = 'JS: module err: ' + msg;
+          });
+      })();
+    </script>
+    <script
+      id="desk-module"
+      src="/app/index.mjs"
+      type="module"
+      onerror="(function(){var el=document.getElementById('js-alive');if(el)el.textContent='JS: module load error';})();"
+    ></script>
   </body>
 </html>
