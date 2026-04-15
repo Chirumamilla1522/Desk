@@ -13,6 +13,14 @@ import {
   reportHref,
 } from './app/views/ledger.mjs';
 
+// Minimal runtime heartbeat for debugging hosted issues.
+try {
+  const el = document.getElementById('js-alive');
+  if (el) el.textContent = 'JS: ok';
+} catch {
+  /* ignore */
+}
+
 // Surface runtime errors in the UI instead of silently breaking interactions.
 window.addEventListener('error', (e) => {
   try {
@@ -30,6 +38,25 @@ window.addEventListener('unhandledrejection', (e) => {
     /* ignore */
   }
 });
+
+// Capture clicks globally to detect overlays eating events.
+document.addEventListener(
+  'click',
+  (e) => {
+    try {
+      const t = e.target;
+      const el = t && t.nodeType === 1 ? t : t?.parentElement;
+      if (!el) return;
+      if (el.closest?.('#main-nav')) {
+        const b = el.closest?.('.nav-item');
+        if (b) toast(`Nav click: ${b.dataset.view || 'unknown'}`);
+      }
+    } catch {
+      /* ignore */
+    }
+  },
+  true,
+);
 
 async function loadTracker(prefetchedApplicationsPayload) {
   await ledgerLoadApplications({
