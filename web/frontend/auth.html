@@ -42,7 +42,7 @@
         </form>
         <p class="auth-desk-msg" id="auth-msg" hidden role="alert"></p>
         <footer class="auth-footer">
-          <a href="/">← Back to Desk</a>
+          <a href="/welcome">← Back</a>
         </footer>
       </main>
     </div>
@@ -55,8 +55,11 @@
 
         function safeNextHref() {
           const raw = new URLSearchParams(window.location.search).get('next');
-          if (!raw || !raw.startsWith('/')) return '/';
-          if (raw.startsWith('//')) return '/';
+          // Default to Desk after sign-in.
+          if (!raw || !raw.startsWith('/')) return '/desk';
+          if (raw.startsWith('//')) return '/desk';
+          // Avoid redirect loops back into auth pages.
+          if (raw.startsWith('/auth') || raw.startsWith('/signup')) return '/desk';
           return raw;
         }
 
