@@ -2949,7 +2949,7 @@ if (btnRunClear) {
       const meProbe = await fetch('/api/me', { credentials: 'same-origin' }).then((r) => r.json());
       if (!meProbe.user) {
         const next = encodeURIComponent(`${window.location.pathname}${window.location.search}` || '/');
-        window.location.replace(`/auth.html?next=${next}`);
+        window.location.replace(`/welcome?next=${next}`);
         return;
       }
     }

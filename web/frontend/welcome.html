@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>Welcome — Career-Ops Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=2026-04-14-auth-desk-ui" />
+  </head>
+  <body class="auth-page">
+    <div class="auth-shell">
+      <header class="auth-brand">
+        <div class="auth-brand-mark" aria-hidden="true">◇</div>
+        <div class="auth-brand-text">
+          <p class="auth-product">Desk</p>
+          <p class="auth-tagline">Career-Ops workspace</p>
+        </div>
+      </header>
+
+      <main class="auth-card-panel">
+        <h2>One place for your job search</h2>
+        <p class="auth-lead">
+          Desk organizes your pipeline, applications ledger, CV manuscript, interview prep, outreach, and reports.
+          Sign in to sync your workspace to your account.
+        </p>
+
+        <div class="auth-actions">
+          <a class="btn primary" id="btn-signin" href="/auth.html">Sign in</a>
+          <a class="btn ghost" id="btn-signup" href="/signup">Create account</a>
+        </div>
+
+        <p class="auth-desk-msg" id="welcome-msg" hidden role="status"></p>
+
+        <footer class="auth-footer auth-links-row">
+          <a href="/" id="link-desk">Continue to Desk</a>
+          <span class="auth-divider" aria-hidden="true">·</span>
+          <a href="/api/health" target="_blank" rel="noreferrer">Health</a>
+        </footer>
+      </main>
+    </div>
+
+    <script type="module">
+      (function welcomeInit() {
+        const qp = new URLSearchParams(window.location.search);
+        const next = qp.get('next');
+        const msg = document.getElementById('welcome-msg');
+        const linkDesk = document.getElementById('link-desk');
+        const aIn = document.getElementById('btn-signin');
+        const aUp = document.getElementById('btn-signup');
+
+        function safeNextHref(raw) {
+          if (!raw || !raw.startsWith('/')) return '/';
+          if (raw.startsWith('//')) return '/';
+          return raw;
+        }
+
+        const safeNext = safeNextHref(next);
+        if (linkDesk) linkDesk.href = safeNext;
+        if (aIn) aIn.href = `/auth.html?next=${encodeURIComponent(safeNext)}`;
+        if (aUp) aUp.href = `/signup?next=${encodeURIComponent(safeNext)}`;
+
+        if (msg && safeNext !== '/') {
+          msg.hidden = false;
+          msg.textContent = 'After you sign in, we’ll send you back to where you were.';
+        }
+      })();
+    </script>
+  </body>
+</html>
+

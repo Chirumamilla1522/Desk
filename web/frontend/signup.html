@@ -49,7 +49,7 @@
         </form>
         <p class="auth-desk-msg" id="signup-msg" hidden role="alert"></p>
         <footer class="auth-footer auth-links-row">
-          <a href="/auth.html">Sign in</a>
+          <a href="/auth.html" id="link-signin">Sign in</a>
           <span class="auth-divider" aria-hidden="true">·</span>
           <a href="/">← Desk</a>
         </footer>
@@ -79,6 +79,13 @@
           if (!raw || !raw.startsWith('/')) return '/';
           if (raw.startsWith('//')) return '/';
           return raw;
+        }
+
+        // Preserve next on the sign-in link too.
+        const signInLink = document.getElementById('link-signin');
+        if (signInLink) {
+          const safeNext = safeNextHref();
+          signInLink.href = `/auth.html?next=${encodeURIComponent(safeNext)}`;
         }
 
         try {

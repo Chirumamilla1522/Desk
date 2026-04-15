@@ -1264,7 +1264,7 @@ app.use('/reports', async (req, res, next) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res
         .status(401)
-        .send('<p>Sign in required.</p><p><a href="/auth.html">Sign in</a></p>');
+        .send('<p>Sign in required.</p><p><a href="/welcome">Continue</a></p>');
     }
     if (req.method === 'GET' && isCloudEnabled() && u && /\.md$/i.test(req.path)) {
       const clean = req.path.replace(/^\//, '');
@@ -1290,12 +1290,16 @@ app.use('/output', async (req, res, next) => {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res
         .status(401)
-        .send('<p>Sign in required.</p><p><a href="/auth.html">Sign in</a></p>');
+        .send('<p>Sign in required.</p><p><a href="/welcome">Continue</a></p>');
     }
     outputStaticHandler(req, res, next);
   } catch (e) {
     next(e);
   }
+});
+
+app.get('/welcome', (_req, res) => {
+  res.sendFile(join(PUBLIC, 'welcome.html'));
 });
 
 app.get('/signup', (_req, res) => {
